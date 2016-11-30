@@ -1,4 +1,4 @@
 usc/
-
+*.retry
 inventories/stg
 inventories/sbx
