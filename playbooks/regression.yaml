@@ -1,0 +1,5 @@
+---
+
+# Regression Test Playbook
+
+  - include: ./regression_test/dns_check.yaml

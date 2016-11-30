@@ -1,0 +1,11 @@
+---
+- name: Load master configuration file
+  hosts: master[0]
+  vars: 
+    master_config_file: "/tmp/master-config-{{ansible_hostname}}.yaml"
+  tasks:
+    - name: Fetch master configuration file from remote
+      fetch: src=/etc/origin/master/master-config.yaml dest="{{ master_config_file }}" flat=yes
+ 
+    - name: Load variable from configuration file
+      include_vars: "{{ master_config_file }}"

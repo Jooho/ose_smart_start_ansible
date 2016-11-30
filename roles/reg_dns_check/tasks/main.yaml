@@ -1,0 +1,33 @@
+---
+- name: Execute dig command to check dns can resolve ip.
+  shell: dig "{{ item }}" | grep 'ANSWER SECTION' | wc -l
+  with_items:
+     - "{{groups['all']| unique}}"
+  register: dig_result
+
+- name: Create test result File
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}"
+     - "{{ role_path|basename }}-temp"
+  delegate_to: localhost
+
+- name: Create test result File
+  file: path={{regression_result_path}}/{{ item }} state=touch
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}"
+     - "{{ role_path|basename }}-temp"
+  delegate_to: localhost
+
+- name: Write test result to file
+  shell: echo "{{ inventory_hostname }} {{ item.item }} {{ item.stdout }}" >> {{regression_result_path}}/{{role_path|basename}}-temp
+  with_items:
+    - "{{dig_result.results}}"
+  delegate_to: localhost
+
+- name: Sort test result
+  run_once: true
+  shell: cat {{regression_result_path}}/{{role_path|basename}}-temp|sort > {{regression_result_path}}/{{role_path|basename}}
+  delegate_to: localhost

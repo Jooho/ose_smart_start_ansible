@@ -1,0 +1,20 @@
+
+---
+ - include: ../common/master_config_facts.yaml
+ - name: Check if DNS can resolve all hostname((master/etcd/master/lb/nfs[if nfs group exist]) in OCP cluster
+   hosts: all
+   gather_facts: false
+   
+   pre_tasks:
+   - name: set concurrent path
+     local_action: command pwd
+     register: pwd
+
+   - name: set_facts - pwd_path
+     set_fact:
+        pwd_path: "{{pwd.stdout}}"
+
+   roles:
+    - { role: reg_dns_check } 
+
+
