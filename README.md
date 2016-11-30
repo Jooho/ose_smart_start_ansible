@@ -1,0 +1,1 @@
+# ose_smart_start_ansible
