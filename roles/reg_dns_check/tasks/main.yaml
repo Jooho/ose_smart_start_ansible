@@ -10,7 +10,7 @@
   run_once: true
   with_items:
      - "{{ role_path|basename }}"
-     - "{{ role_path|basename }}-temp"
+     - "{{ role_path|basename }}-raw"
   delegate_to: localhost
 
 - name: Create test result File
@@ -18,16 +18,16 @@
   run_once: true
   with_items:
      - "{{ role_path|basename }}"
-     - "{{ role_path|basename }}-temp"
+     - "{{ role_path|basename }}-raw"
   delegate_to: localhost
 
 - name: Write test result to file
-  shell: echo "{{ inventory_hostname }} {{ item.item }} {{ item.stdout }}" >> {{regression_result_path}}/{{role_path|basename}}-temp
+  shell: echo "{{ inventory_hostname }} {{ item.item }} {{ item.stdout }}" >> {{regression_result_path}}/{{role_path|basename}}-raw
   with_items:
     - "{{dig_result.results}}"
   delegate_to: localhost
 
 - name: Sort test result
   run_once: true
-  shell: cat {{regression_result_path}}/{{role_path|basename}}-temp|sort > {{regression_result_path}}/{{role_path|basename}}
+  shell: cat {{regression_result_path}}/{{role_path|basename}}-raw|sort > {{regression_result_path}}/{{role_path|basename}}
   delegate_to: localhost

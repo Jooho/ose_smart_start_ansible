@@ -1,0 +1,30 @@
+---
+- name: Create test result File
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}"
+     - "{{ role_path|basename }}-raw"
+  delegate_to: localhost
+
+- name: Create test result File
+  file: path={{regression_result_path}}/{{ item }} state=touch
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}"
+  delegate_to: localhost
+
+- name: Execute 'openshift ex diagnostics'
+  shell: openshift ex diagnostics > {{regression_result_path}}/{{ role_path|basename }}-raw
+
+- name: Fetch raw result file
+  fetch: src={{regression_result_path}}/{{ role_path|basename }}-raw dest={{regression_result_path}}
+
+- name: Filter result data
+  shell: "egrep 'Errors|Warnings' {{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}-raw|awk '{print $2 \" \" $4}' > {{regression_result_path}}/{{role_path|basename}}"
+  register: openshift_ex_diagnostics_result
+  delegate_to: localhost
+
+
+
+
