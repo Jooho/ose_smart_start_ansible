@@ -4,7 +4,7 @@
   run_once: true
   with_items:
      - "{{ role_path|basename }}"
-     - "{{ role_path|basename }}-raw"
+     - "{{ role_path|basename }}_raw"
   delegate_to: localhost
 
 - name: Create test result File
@@ -15,13 +15,13 @@
   delegate_to: localhost
 
 - name: Execute 'openshift ex diagnostics'
-  shell: openshift ex diagnostics > {{regression_result_path}}/{{ role_path|basename }}-raw
+  shell: openshift ex diagnostics > {{regression_result_path}}/{{ role_path|basename }}_raw
 
 - name: Fetch raw result file
-  fetch: src={{regression_result_path}}/{{ role_path|basename }}-raw dest={{regression_result_path}}
+  fetch: src={{regression_result_path}}/{{ role_path|basename }}_raw dest={{regression_result_path}}
 
 - name: Filter result data
-  shell: "egrep 'Errors|Warnings' {{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}-raw|awk '{print $2 \" \" $4}' > {{regression_result_path}}/{{role_path|basename}}"
+  shell: "egrep 'Errors|Warnings' {{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_raw|awk '{print $2 \" \" $4}' > {{regression_result_path}}/{{role_path|basename}}"
   register: openshift_ex_diagnostics_result
   delegate_to: localhost
 

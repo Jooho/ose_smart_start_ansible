@@ -4,7 +4,7 @@
   run_once: true
   with_items:
      - "{{ role_path|basename }}"
-     - "{{ role_path|basename }}-raw"
+     - "{{ role_path|basename }}_raw"
   delegate_to: localhost
 
 - name: Create test result File
@@ -15,13 +15,13 @@
   delegate_to: localhost
 
 - name: Execute 'oc get node'
-  shell: oc get node > {{regression_result_path}}/{{ role_path|basename }}-raw
+  shell: oc get node > {{regression_result_path}}/{{ role_path|basename }}_raw
 
 - name: Fetch raw result file
-  fetch: src={{regression_result_path}}/{{ role_path|basename }}-raw dest={{regression_result_path}}
+  fetch: src={{regression_result_path}}/{{ role_path|basename }}_raw dest={{regression_result_path}}
 
 - name: Filter result data
-  shell: "cat {{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}-raw|awk 'NF{NF--};1' > {{regression_result_path}}/{{role_path|basename}}"
+  shell: "cat {{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_raw|awk 'NF{NF--};1' > {{regression_result_path}}/{{role_path|basename}}"
   delegate_to: localhost
 
 

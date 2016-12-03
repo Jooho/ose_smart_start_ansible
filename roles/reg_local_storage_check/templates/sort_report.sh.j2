@@ -1,0 +1,24 @@
+
+#!/usr/bin/bash
+result_filename="{{regression_result_path}}/{{ role_path|basename }}"
+raw_filename="{{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_raw"
+raw_sort_filename="{{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_raw_sort"
+cat ${raw_filename} | sort --key 5 -g -r > ${raw_sort_filename}
+while read -r line
+do
+    percentage=$(echo $line|awk '{print $5}'|tr -d "%")
+    percentage=$(( $percentage + 0 ))
+    
+    if [ $percentage -eq 100  ]
+    then
+      echo $line |awk '{print "{{inventory_hostname}} " $6 " FAIL:" $5}' >> ${result_filename}_temp
+    elif [ $percentage -lt 99 ] && [ $percentage -gt 80 ]
+    then
+      echo $line |awk '{print "{{inventory_hostname}} " $6 " WARN:" $5}'  >> ${result_filename}_temp
+    elif [ $percentage -lt 79 ] && [ $percentage -gt 70 ]
+    then
+      echo $line |awk '{print "{{inventory_hostname}} " $6 " INFO:" $5}'  >> ${result_filename}_temp
+    fi
+done < $raw_sort_filename
+
+cat ${result_filename}_temp | sort > ${result_filename}
