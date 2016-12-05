@@ -1,0 +1,68 @@
+---
+- name: Delete test result File
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}"
+     - "{{ role_path|basename }}_raw"
+  delegate_to: localhost
+
+- name: Create test result File
+  file: path={{regression_result_path}}/{{ item }} state=touch
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}"
+     - "{{ role_path|basename }}_raw"
+  delegate_to: localhost
+
+- name: Check if squid service is runnig
+  service: name=squid state=started
+  register: is_squid_service_runnig
+  when: '"{{inventory_hostname}}" == "{{item}}"'
+  with_items:
+     - "{{squid_vms|default(omit)}}"
+
+- name: Check if Service for squid
+  shell: "oc get svc -n default|grep squid"
+  run_once: true
+  delegate_to: "{{groups.masters.0}}"
+  register: does_squid_svc_exist
+  ignore_errors: true
+
+- name: Check if Endpoint for squid
+  shell: "oc get ep -n default|grep squid"
+  run_once: true
+  delegate_to: "{{groups.masters.0}}"
+  register: does_squid_ep_exist
+  ignore_errors: true
+
+- name: Filter result data for squid package
+  shell: "echo {{item.item}} {{item.state}} >>  {{regression_result_path}}/{{role_path|basename}}_raw"
+  when: ({{item.skipped is not defined}})
+  with_items:
+     - "{{is_squid_service_runnig.results}}"
+  register: package_raw_data
+  delegate_to: localhost
+
+- name: Sort result data for squid package
+  shell: "sort {{regression_result_path}}/{{role_path|basename}}_raw  >> {{regression_result_path}}/{{role_path|basename}}"
+  run_once: true
+  when: ({{item.skipped is not defined}})
+  with_items:
+     - "{{is_squid_service_runnig.results}}"
+  delegate_to: localhost
+
+- name: Filter result data for svc
+  shell: "echo svc {{item}}| awk '{print $1 $2 \" \" $3}'  >> {{regression_result_path}}/{{role_path|basename}}"
+  when: '"{{item.stdout}}" != ""' 
+  with_items:
+     - "{{does_squid_svc_exist|default(omit)}}"
+  delegate_to: localhost
+
+- name: Filter result data for ep
+  shell: "echo endpoint {{item}} | awk '{print $1 \" \" $3}'  >> {{regression_result_path}}/{{role_path|basename}} " 
+  when: '"{{item.stdout}}" != ""'
+  with_items:
+     - "{{does_squid_ep_exist|default(omit)}}"
+  delegate_to: localhost
+

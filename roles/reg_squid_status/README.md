@@ -1,10 +1,9 @@
-Regression Test - Local Storage Used Size
+Regression Test - Squid Test
 ============
 
-This role check if local storage has enough space
- - 100% : FAIL
- - 99% - 80% : WARN 
- - 79% - 70% : INFO
+This role test squid related information
+ - squid is started
+ - svc/eq exist
 
 Requirements
 ------------
@@ -17,6 +16,15 @@ From this role:
 | Name                    | Default value                                 | Description                                                                 |
 |-------------------------|-----------------------------------------------|-----------------------------------------------------------------------------|
 | regression_result_path  | /tmp                                          | Regression Test result folder                                               |
+| squid_vms               | null                                          | If squid is used, squid vms can be listed                                   |
+
+
+*squid_vms example*
+~~~
+squid_vms:
+  - master1.example.com
+  - master2.example.com
+~~~
 
 Dependencies
 ------------
@@ -26,13 +34,23 @@ Example Playbook
 ----------------
 
 ```
+
 ---
- - name: Check if local storage has enough spaces. Full of /var, /var/log, /var/lib/docker and docker-pool can impact OCP.
+ - include: ../common/master_config_facts.yaml
+ - name: Check if squid service is Runnig and svc/ep exist
    hosts: all
    gather_facts: false
 
    roles:
-    - { role: reg_local_storage_check }
+    - { role: reg_squid_status }
+
+```
+
+Example Result
+-------------
+
+```
+
 
 ```
 
