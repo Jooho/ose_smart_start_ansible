@@ -1,0 +1,20 @@
+
+---
+ - include: ../common/master_config_facts.yaml
+ - name: Check if sdn networking work. It check OCP vm can ping via tunnelling tun0 interface.
+   hosts: all
+   gather_facts: false
+   
+   pre_tasks:
+   - name: set concurrent path
+     local_action: command pwd
+     register: pwd
+
+   - name: set_facts - pwd_path
+     set_fact:
+        pwd_path: "{{pwd.stdout}}"
+        remote_host: "./remote_devices"
+   roles:
+    - { role: reg_sdn_check } 
+
+

@@ -1,0 +1,20 @@
+
+---
+ - include: ../common/master_config_facts.yaml
+ - name: Check if api server is running via health check url
+   hosts: masters
+   gather_facts: false
+   
+   pre_tasks:
+   - name: set concurrent path
+     local_action: command pwd
+     register: pwd
+
+   - name: set_facts - pwd_path
+     set_fact:
+        pwd_path: "{{pwd.stdout}}"
+        remote_host: "./remote_devices"
+   roles:
+    - { role: reg_api_server_check } 
+
+

@@ -1,0 +1,27 @@
+---
+- name: Create test result File
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}"
+     - "{{ role_path|basename }}_raw"
+  delegate_to: localhost
+
+- name: Create test result File
+  file: path={{regression_result_path}}/{{ item }} state=touch
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}"
+  delegate_to: localhost
+
+- name: Api server health check on masters
+  shell: "curl -k https://localhost:8443/healthz" 
+  register: api_health_check
+
+- name: Generate result report 
+  shell: "echo {{inventory_hostname}} {{item.stdout}} >> {{regression_result_path}}/{{ role_path|basename }}"
+  delegate_to: localhost
+  with_items:
+     - "{{api_health_check}}"
+
+

@@ -5,3 +5,9 @@
   - include: ./regression_test/dns_check.yaml
   - include: ./regression_test/openshift_ex_diagnostic.yaml
   - include: ./regression_test/node_status.yaml
+  - include: ./regression_test/local_storage_check.yaml
+  - include: ./regression_test/squid_status.yaml
+  - include: ./regression_test/sdn_check.yaml
+
+
+
