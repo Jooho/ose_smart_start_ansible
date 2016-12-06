@@ -1,0 +1,21 @@
+
+---
+ - include: ../common/master_config_facts.yaml
+ - name: Check external registry : docker login/docker pull  
+   hosts: all
+   gather_facts: false
+   
+   pre_tasks:
+   - name: set concurrent path
+     local_action: command pwd
+     register: pwd
+
+   - name: set_facts - pwd_path
+     set_fact:
+        pwd_path: "{{pwd.stdout}}"
+   
+
+   roles:
+    - { role: reg_external_registry_check } 
+
+

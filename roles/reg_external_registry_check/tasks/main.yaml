@@ -1,0 +1,53 @@
+---
+- name: Delete test result File
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}_result_1"
+     - "{{ role_path|basename }}_result_2"
+     - "{{ role_path|basename }}_temp_1"
+     - "{{ role_path|basename }}_temp_2"
+  delegate_to: localhost
+
+- name: Create test result File
+  file: path={{regression_result_path}}/{{ item }} state=touch
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}_result_1"
+     - "{{ role_path|basename }}_result_2"
+     - "{{ role_path|basename }}_temp_1"
+     - "{{ role_path|basename }}_temp_2"
+  delegate_to: localhost
+
+- name: docker login with external registry
+  shell: docker login -u '{{external_registry.user_id}}' -e {{external_registry.email}} -p '{{external_registry_password}}' {{external_registry.url}}
+  register: docker_login
+  ignore_errors: true
+
+- name: docker pull test
+  shell: docker pull {{external_registry.url}}/openshift/hello-openshift
+  ignore_errors: true
+  with_items:
+     - "{{ docker_login }}"
+  register: docker_pull_test
+
+- name: Generate docker login result report
+  shell: echo {{inventory_hostname}} docker_login:{{item.rc}} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1 
+  with_items:
+     - "{{ docker_login }}"
+  delegate_to: localhost
+
+- name: Sort docker login result report
+  shell: sort {{regression_result_path}}/{{ role_path|basename }}_temp_1 -o  {{regression_result_path}}/{{ role_path|basename }}_result_1
+  delegate_to: localhost
+
+- name: Generate docker pull image result report
+  shell: echo {{inventory_hostname}} docker_pull:{{item.rc}} >> {{regression_result_path}}/{{ role_path|basename }}_temp_2 
+  with_items:
+     - "{{ docker_pull_test.results }}"
+  ignore_errors: true
+  delegate_to: localhost
+
+- name: Sort docker pull image result report
+  shell: sort {{regression_result_path}}/{{ role_path|basename }}_temp_2 -o  {{regression_result_path}}/{{ role_path|basename }}_result_2
+  delegate_to: localhost
