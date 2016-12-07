@@ -1,0 +1,31 @@
+---
+- name: Delete test result File
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}_result_1"
+     - "{{ role_path|basename }}_raw_1"
+  delegate_to: localhost
+
+- name: Create test result File
+  file: path={{regression_result_path}}/{{ item }} state=touch
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}_result_1"
+  delegate_to: localhost
+
+- name: Check all pods status in default
+  shell:  "oc get pod -n default >  {{regression_result_path}}/{{ role_path|basename }}_raw_1"
+  run_once: true
+
+- name: Check all pods status in default
+  fetch: src={{regression_result_path}}/{{ role_path|basename }}_raw_1  dest={{regression_result_path}}
+
+- name: Copy generate_report.sh file to {{regression_result_path}}
+  template: src=generate_report.sh.j2 dest={{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_generate_report.sh force=yes  mode=0777
+  delegate_to: localhost
+
+- name: Generate result report for pod status
+  script: " {{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_generate_report.sh"
+  sudo: true
+  delegate_to: localhost
