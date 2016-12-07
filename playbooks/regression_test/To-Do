@@ -1,0 +1,5 @@
+
+SDN Check : 
+  If master is used for compute node, those are also the target vms to be tested.
+  However, if it is not, it should be excluded because firewall between master and node
+  

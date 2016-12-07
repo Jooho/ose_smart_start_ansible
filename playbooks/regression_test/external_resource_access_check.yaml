@@ -1,0 +1,21 @@
+
+---
+ - include: ../common/master_config_facts.yaml
+ - name: Check the accessibility to external resources from OCP nodes - github.com , gitlab.com
+   hosts: all
+   gather_facts: false
+   
+   pre_tasks:
+   - name: set concurrent path
+     local_action: command pwd
+     register: pwd
+
+   - name: set_facts - pwd_path
+     set_fact:
+        pwd_path: "{{pwd.stdout}}"
+   
+
+   roles:
+    - { role: reg_external_resource_access_check } 
+
+
