@@ -1,0 +1,86 @@
+---
+- set_fact:
+     project_name: "sample-ssl-eap"
+
+- name: Delete test result File
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}_result_1"
+     - "{{ role_path|basename }}_eap_ssl.cnf"
+     - "keystore.jks"
+     - "{{ role_path|basename }}_eap-service-account.yaml"
+  delegate_to: localhost
+
+- name: Create test result File
+  file: path={{regression_result_path}}/{{ item }} state=touch
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}_result_1"
+  delegate_to: localhost
+
+- name: Execute `oc login`
+  shell: "{{ item }}"
+  with_items:
+    - "oc login -u '{{oc_login.user_id}}' -p '{{oc_login_password}}' --insecure-skip-tls-verify --server={{oc_login.url}}"
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
+  register: oc_login
+
+- name: Check if regression test project exist
+  shell: "oc project {{project_name}}"
+  ignore_errors: true
+  register: regression_project_exist
+
+- name: Create regression test project if it does not exist
+  shell: " oc new-project {{project_name}} "
+  when: regression_project_exist|failed
+
+- name: Delete EAP secret and sa
+  shell: " {{ item }} "
+  when: regression_project_exist|success
+  with_items:
+    - " oc delete secret eap-app-secret"
+    - " oc delete sa eap-service-account"
+    - " oc delete all -l app=eap-app-test"
+
+- name: Copy eap_ssl.cnf file to regression_test folder
+  template: src="eap_ssl.cnf.j2" dest="{{regression_result_path}}/{{ role_path|basename }}_eap_ssl.cnf"
+  delegate_to: localhost
+
+- name: Generate Self Sign Certs
+  command: keytool -genkey -keyalg RSA -alias selfsigned -keystore {{regression_result_path}}/keystore.jks -storepass supersecret -keypass supersecret -validity 360 -keysize 2048  -dname 'cn=secure-eap-app-test.{{osm_default_subdomain}}, ou=Consult, o=Red Hat, l=Toronto, st=Ontario c=CA'
+  delegate_to: localhost
+  register: generate_self_sign_cer
+
+- name: Change jks file permission
+  file: path={{regression_result_path}}/keystore.jks mode=777
+  delegate_to: localhost
+
+- name: Copy eap-service-account.yaml to regression_test folder
+  copy: src="{{item.src}}" dest="{{item.dest}}" force="yes"
+  with_items:
+      - { src: "eap-service-account.yaml" , dest: "{{regression_result_path}}/{{ role_path|basename }}_eap-service-account.yaml"}
+      - { src: "{{regression_result_path}}/keystore.jks", dest: "{{regression_result_path}}/{{ role_path|basename }}_keystore.jks" }
+
+- name: Create secret/sa
+  command: "{{ item }}"
+  args:  
+    chdir: "{{regression_result_path}}"
+  with_items:
+     - "oc secrets new eap-app-secret {{regression_result_path}}/keystore.jks"
+     - "oc create -f {{regression_result_path}}/{{ role_path|basename }}_eap-service-account.yaml"
+
+- name: Deploy eap application
+  command: "oc new-app --template=eap64-https-s2i -p HTTPS_NAME=selfsigned,HTTPS_PASSWORD=supersecret,HOSTNAME_HTTPS=secure-eap-app-test.{{osm_default_subdomain}},HOSTNAME_HTTP=eap-app-test.{{osm_default_subdomain}} -l app=eap-app-test"
+  register: deploy_eap_app
+
+- name: Delete test result File
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}_result_1"
+     - "{{ role_path|basename }}_eap_ssl.cnf"
+     - "keystore.jks"
+     - "{{ role_path|basename }}_eap-service-account.yaml"
+  delegate_to: localhost
+

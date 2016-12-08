@@ -18,11 +18,11 @@
 
 - name: docker login with external registry from master node
   shell: " {{ item }}"
-  when: "{{internal_registry_test_host is undefined}} or {{internal_registry_test_host == ''}}"
+  when: "{{remote_test_host is undefined}} or {{remote_test_host == ''}}"
   with_items:
     - "oc login -u '{{oc_login.user_id}}' -p '{{oc_login_password}}' --insecure-skip-tls-verify --server={{oc_login.url}}"
     - "docker login -u '{{internal_registry.user_id}}' -e {{internal_registry.email}} -p $(oc whoami -t) {{internal_registry.url}}"
-  delegate_to: "{{ groups.masters.0 if internal_registry_test_host == ' ' else internal_registry_test_host}}"
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
   register: docker_login
 
 - name: Check if regression test project exist
@@ -41,8 +41,8 @@
      - "docker pull busybox"
      - "docker tag -f docker.io/library/busybox {{internal_registry.url}}/{{project_name}}/busybox "
      - "docker push {{internal_registry.url}}/{{project_name}}/busybox"
-  when: "{{internal_registry_test_host is undefined}} or {{internal_registry_test_host == ''}}"
-  delegate_to: "{{ groups.masters.0 if internal_registry_test_host == ' ' else internal_registry_test_host}}"
+  when: "{{remote_test_host is undefined}} or {{remote_test_host == ''}}"
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
   register: docker_push_test
 
 - name: docker pull test from master node
@@ -50,8 +50,8 @@
   ignore_errors: true
   with_items:
      - "docker pull {{internal_registry.url}}/{{project_name}}/busybox"
-  when: "{{internal_registry_test_host is undefined}} or {{internal_registry_test_host == ''}}"
-  delegate_to: "{{ groups.masters.0 if internal_registry_test_host == ' ' else internal_registry_test_host}}"
+  when: "{{remote_test_host is undefined}} or {{remote_test_host == ''}}"
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
   register: docker_pull_test
 
 - name: Generate result report - oc_login/docker_login
@@ -79,8 +79,8 @@
      - "docker rmi {{internal_registry.url}}/{{project_name}}/busybox"
      - "docker rmi docker.io/busybox"
      - "oc delete project {{project_name}}"
-  when: "{{internal_registry_test_host is undefined}} or {{internal_registry_test_host == ''}}"
-  delegate_to: "{{ groups.masters.0 if internal_registry_test_host == ' ' else internal_registry_test_host}}"
+  when: "{{remote_test_host is undefined}} or {{remote_test_host == ''}}"
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
   register: clean_data
 
 - name: Generate result report - Clean up tested data

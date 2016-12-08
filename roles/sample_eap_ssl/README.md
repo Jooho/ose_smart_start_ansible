@@ -20,7 +20,7 @@ From this role:
 | oc_login.user_id            | NONE                                          | OCP login user id                                                           |
 | oc_login_password           | NONE                                          | OCP login password                                                          |
 | oc_login.url                | NONE                                          | OCP api server url                                                          |
-| remote_test_host            | ' '                                           | Test host can be changed due to firewall rule                               |
+| internal_registry_test_host | ' '                                           | Test host can be changed due to firewall rule                               |
 
 It is not recommaneded to save "oc_login_password" in group_var so please use extra_vars.
 
@@ -54,7 +54,7 @@ Example group_vars
 internal_registry: {user_id: "OpenShiftAdmin", email: "test@gmail.com", url: "registry.sbx.cloudapps.ao.dcn"}
 oc_login: {user_id: "OpenShiftAdmin", url: "https://api.sbx.cloudapps.ao.dcn:8443"}
 oc_login_password: "password"
-remote_test_host: dev001.example.com
+internal_registry_test_host: dev001.example.com
 ```
 
 Example Result 
