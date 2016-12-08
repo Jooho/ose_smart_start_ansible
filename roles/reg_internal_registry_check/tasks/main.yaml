@@ -1,0 +1,91 @@
+---
+- set_fact:
+     project_name: "regression-test"
+
+- name: Delete test result File
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}_result_1"
+  delegate_to: localhost
+
+- name: Create test result File
+  file: path={{regression_result_path}}/{{ item }} state=touch
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}_result_1"
+  delegate_to: localhost
+
+- name: docker login with external registry from master node
+  shell: " {{ item }}"
+  when: "{{internal_registry_test_host is undefined}} or {{internal_registry_test_host == ''}}"
+  with_items:
+    - "oc login -u '{{oc_login.user_id}}' -p '{{oc_login_password}}' --insecure-skip-tls-verify --server={{oc_login.url}}"
+    - "docker login -u '{{internal_registry.user_id}}' -e {{internal_registry.email}} -p $(oc whoami -t) {{internal_registry.url}}"
+  delegate_to: "{{ groups.masters.0 if internal_registry_test_host == ' ' else internal_registry_test_host}}"
+  register: docker_login
+
+- name: Check if regression test project exist
+  shell: "oc project {{project_name}}"
+  ignore_errors: true
+  register: regression_project_exist
+
+- name: Create regression test project if it does not exist
+  shell: "oc new-project {{project_name}}"
+  when: regression_project_exist|failed
+
+- name: docker push test from master node
+  shell: "{{ item }}"
+  ignore_errors: true
+  with_items:
+     - "docker pull busybox"
+     - "docker tag -f docker.io/library/busybox {{internal_registry.url}}/{{project_name}}/busybox "
+     - "docker push {{internal_registry.url}}/{{project_name}}/busybox"
+  when: "{{internal_registry_test_host is undefined}} or {{internal_registry_test_host == ''}}"
+  delegate_to: "{{ groups.masters.0 if internal_registry_test_host == ' ' else internal_registry_test_host}}"
+  register: docker_push_test
+
+- name: docker pull test from master node
+  shell: "{{ item }}"
+  ignore_errors: true
+  with_items:
+     - "docker pull {{internal_registry.url}}/{{project_name}}/busybox"
+  when: "{{internal_registry_test_host is undefined}} or {{internal_registry_test_host == ''}}"
+  delegate_to: "{{ groups.masters.0 if internal_registry_test_host == ' ' else internal_registry_test_host}}"
+  register: docker_pull_test
+
+- name: Generate result report - oc_login/docker_login
+  shell: echo -n "{{item.rc}} " >> {{regression_result_path}}/{{ role_path|basename }}_result_1
+  delegate_to: localhost
+  with_items:
+     - "{{ docker_login.results }}" 
+
+- name: Generate result report - docker pull,tag,push busybox
+  shell: echo -n "{{item.rc}} " >> {{regression_result_path}}/{{ role_path|basename }}_result_1
+  delegate_to: localhost
+  with_items:
+     - "{{ docker_push_test.results }}" 
+
+- name: Generate result report - docker pull pushed image
+  shell: echo -n "{{item.rc}} " >> {{regression_result_path}}/{{ role_path|basename }}_result_1
+  delegate_to: localhost
+  with_items:
+     - "{{ docker_pull_test.results }}" 
+
+- name: Clean up from master node
+  shell: "{{ item }}"
+  ignore_errors: true
+  with_items:
+     - "docker rmi {{internal_registry.url}}/{{project_name}}/busybox"
+     - "docker rmi docker.io/busybox"
+     - "oc delete project {{project_name}}"
+  when: "{{internal_registry_test_host is undefined}} or {{internal_registry_test_host == ''}}"
+  delegate_to: "{{ groups.masters.0 if internal_registry_test_host == ' ' else internal_registry_test_host}}"
+  register: clean_data
+
+- name: Generate result report - Clean up tested data
+  shell: echo -n "{{item.rc}} " >> {{regression_result_path}}/{{ role_path|basename }}_result_1
+  delegate_to: localhost
+  with_items:
+     - "{{ clean_data.results }}"
+

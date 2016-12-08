@@ -1,0 +1,111 @@
+{
+  "title": "Integrated Docker Registry Regression Test",
+  "result": {
+    "1": {
+      "column": [
+        {
+          "name": "oc_login",
+          "display": "OC LOGIN",
+          "desc": "For test, task do `oc login`",
+          "type": "task_result"
+        },
+        {
+          "name": "docker_login",
+          "display": "DOCKER LOGIN",
+          "desc": "For test, task do `docker login`",
+          "type": "task_result"
+        },
+        {
+          "name": "docker_pull_test_from_dockerio",
+          "display": "Docker Pull Test",
+          "desc": "Docker image 'busyboxy' is pulled from docker hub for test",
+          "type": "task_result"
+        },
+        {
+          "name": "docker_tag_test",
+          "display": "Docker Tag Test",
+          "desc": "In order to push 'busybox' to integrated docker registry, it tags Docker image 'busyboxy' to new name",
+          "type": "task_result"
+        },
+        {
+          "name": "docker_push_test",
+          "display": "Docker Push Test",
+          "desc": "Docker push new tag image to integrated docker registry",
+          "type": "task_result"
+        },
+        {
+          "name": "docker_pull_test_from_internal",
+          "display": "Docker Pull Test",
+          "desc": "Docker image 'busyboxy' is pulled from docker hub for test",
+          "type": "task_result"
+        },
+        {
+          "name": "docker_rmi_internal_image",
+          "display": "Remove internal registry image",
+          "desc": "This remove the image 'busybox' for intengraged repository",
+          "type": "task_result"
+        },
+        {
+          "name": "docker_rmi_dockerio_image",
+          "display": "Remove dockerio image",
+          "desc": "This remove the image 'busybox' for dockerio",
+          "type": "task_result"
+        },
+        {
+          "name": "oc_delete_project",
+          "display": "Remove test project",
+          "desc": "This delete regression test project",
+          "type": "task_result"
+        }
+      ]
+    }
+  },
+  "result_type": [
+    {
+      "0": "SUCCESS"
+    },
+    {
+      "1": "FAIL"
+    },
+    {
+      "2": "WARN"
+    }
+  ],
+  "report": {
+    "column": [
+      {
+        "name": "oc_login"
+      },
+      {
+        "name": "docker_login"
+      },
+      {
+        "name": "docker_pull_test_from_dockerio"
+      },
+      {
+        "name": "docker_tag_test"
+      },
+      {
+        "name": "docker_push_test"
+      },
+      {
+        "name": "docker_pull_test_from_internal"
+      },
+      {
+        "name": "docker_rmi_internal_image"
+      },
+      {
+        "name": "docker_rmi_dockerio_image"
+      },
+      {
+        "name": "oc_delete_project"
+      },
+      {
+        "name": "role_result",
+        "display": "Result",
+        "type": "role_result"
+      }
+    ],
+    "type": "horizontal"
+  }
+}
