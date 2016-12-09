@@ -1,7 +1,7 @@
-Regression Test - External Docker Registry Check
+Regression Test - External Resources Accessiblity Check
 ============
 
-If external docker regitstry is used instread of registry.access.redhat.com. This role help check if it is accessible from OCP hosts and possible to download images.
+This role check the accessiblity to external resources such as github.com/gitlab.com from OCP hosts.
 
 Requirements
 ------------
@@ -14,12 +14,9 @@ From this role:
 | Name                    | Default value                                 | Description                                                                 |
 |-------------------------|-----------------------------------------------|-----------------------------------------------------------------------------|
 | regression_result_path  | /tmp                                          | Regression Test result folder                                               |
-| external_registry.user_id   |  NONE                                     | External registry login user id                                             |
-| external_registry.email | NONE                                          | External registry login email                                               |
-| external_registry.url   | NONE                                          | External registry login url                                                 |
-| external_registry_password  | NONE                                      | External registry login password(NOTE: variable name format different       |
-
-It is not recommaneded to save "external_registry_password" in group_var so please use extra_vars.
+| external_resources.url   |  NONE                                     | External Resource URL                                             |
+| external_resources.proxy | NONE                                          | set proxy url, if external Resource can be reachable via proxy                                               |
+| external_resources.port   | NONE                                          | External Resource port                                                 |
 
 
 Dependencies
@@ -27,20 +24,17 @@ Dependencies
 
 Example Execute Command
 -----------------------
-```
-ansible-playbook  ./external_registry_check.yaml  -vvv  --extra-vars=external_registry_password='password'
-```
 
 Example Playbook
 ----------------
 
 ```
- - name: Check external registry : docker login/docker pull
+ - name: Check the accessibility to external resources from OCP nodes - github.com , gitlab.com
    hosts: all
    gather_facts: false
 
    roles:
-    - { role: reg_external_registry_check }
+    - { role: reg_external_resource_access_check  }
 
 
 ```
@@ -48,22 +42,23 @@ Example Playbook
 Example group_vars
 ------------------
 ```
-external_registry: {user_id: "user", email: "test@gmail.com", url: "external-registry.com:5000"}
-```
+external_resources:
+  - { url: "github.com", proxy: "", port: "22" }
+  - { url: "gitlab.com", proxy: "", port: "22,5000" }
+ ```
 
 Example Result (2 files)
 --------------
-reg_external_registry_check_result_1
 ```
-aoappd-e-mgt001.ctho.asbn.gtwy.dcn docker_login:0
-aoappd-e-mgt002.ctho.asbn.gtwy.dcn docker_login:0
-```
+master1.example.com github.com 22/tcp open
+master1.example.com gitlab.com 22/tcp open
+master1.example.com gitlab.com 5000/tcp open
 
-reg_external_registry_check_result_2
 ```
-aoappd-e-mgt001.ctho.asbn.gtwy.dcn docker_pull:0
-aoappd-e-mgt002.ctho.asbn.gtwy.dcn docker_pull:0
-```
+To_Do
+-----
+proxy variable is not working yet.
+
 License
 -------
 
