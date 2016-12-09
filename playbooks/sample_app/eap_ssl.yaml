@@ -1,10 +1,10 @@
 
 ---
  - include: ../common/master_config_facts.yaml
- - name: Deploy SSL EAP Test Application
+ - name: Deploy EAP SSL Test Application
    hosts: masters[0]
    gather_facts: false
-   sudo: true
+   become: true
 
    pre_tasks:
    - name: set concurrent path
@@ -15,7 +15,6 @@
      set_fact:
         pwd_path: "{{pwd.stdout}}"
    
-
    roles:
     - { role: sample_eap_ssl } 
 
