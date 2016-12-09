@@ -1,0 +1,21 @@
+
+---
+ - include: ../common/master_config_facts.yaml
+ - name: Deploy Hello Openshift SSL/NON-SSL application
+   hosts: masters[0]
+   gather_facts: false
+   sudo: true
+
+   pre_tasks:
+   - name: set concurrent path
+     local_action: command pwd
+     register: pwd
+
+   - name: set_facts - pwd_path
+     set_fact:
+        pwd_path: "{{pwd.stdout}}"
+   
+   roles:
+    - { role: sample_hello_openshift } 
+
+

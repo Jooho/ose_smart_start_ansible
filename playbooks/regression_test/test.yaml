@@ -1,0 +1,22 @@
+
+---
+ - include: ../common/master_config_facts.yaml
+
+ - name: Check if S2I build is working properly
+   hosts: masters[0]
+   gather_facts: false
+
+   pre_tasks:
+   - name: set concurrent path
+     local_action: command pwd
+     register: pwd
+
+   - name: set_facts - pwd_path
+     set_fact:
+        pwd_path: "{{pwd.stdout}}"
+
+   - name: Wait for deploying EAP application.
+     wait_for: host="secure-eap-app-test.{{osm_default_subdomain}}" port="443" state="drained" 
+
+
+

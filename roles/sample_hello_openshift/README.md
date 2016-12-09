@@ -1,7 +1,7 @@
-Regression Test - Sample Application - EAP SSL
+Regression Test - Sample Application - Hello Openshift
 ============
 
-This role deploy eap ssl application which use self signed cert
+This role deploy Hello Openshift ssl/non-ssl application which use self signed cert
 
 Requirements
 ------------
@@ -18,6 +18,7 @@ From this role:
 | oc_login_password           | NONE                                          | OCP login password                                                          |
 | oc_login.url                | NONE                                          | OCP api server url                                                          |
 | remote_test_host            | ' '                                           | Test host can be changed due to firewall rule                               |
+| hello_openshift_certs       | NONE                                          | Specify certificate path and hostname for ssl                               |
 
 It is not recommaneded to save "oc_login_password" in group_var so please use extra_vars.
 
@@ -28,20 +29,20 @@ Dependencies
 Example Execute Command
 -----------------------
 ```
-ansible-playbook  playbooks/sample_app/eap_ssl.yaml  -vvv  --extra-vars oc_login_password='password'
+ansible-playbook  playbooks/sample_app/hello-openshift.yaml  -vvv  --extra-vars oc_login_password='password'
 ```
 
 Example Playbook
 ----------------
 
 ```
- - name: Deploy SSL EAP Test Application
+ - name: Deploy Hello Openshift SSL/NON-SSL application
    hosts: masters[0]
    gather_facts: false
    sudo: true
 
    roles:
-    - { role: sample_eap_ssl }
+    - { role: sample_hello_openshift }
 
 ```
 
@@ -50,6 +51,7 @@ Example group_vars
 ```
 oc_login: {user_id: "OpenShiftAdmin", url: "https://api.sbx.cloudapps.ao.dcn:8443"}
 oc_login_password: "password"
+hello_openshift_certs: { path: "/etc/origin/master", hostname: "secure-hello-openshift.sbx.cloudapps.ao.dcn" }
 remote_test_host: dev001.example.com
 ```
 

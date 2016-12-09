@@ -1,0 +1,28 @@
+---
+- set_fact:
+     project_name: "sample-eap-ssl"
+
+- name: Delete test result File
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}_result_1"
+     - "{{ role_path|basename }}_raw_1"
+  delegate_to: localhost
+
+- name: Create test result File
+  file: path={{regression_result_path}}/{{ item }} state=touch
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}_result_1"
+     - "{{ role_path|basename }}_raw_1"
+  delegate_to: localhost
+
+- name: Execute "curl" command to get SSL page
+  shell: " curl -k  https://secure-eap-app-test.sbx.cloudapps.ao.dcn/index.jsf -v >> {{regression_result_path}}/{{ role_path|basename }}_raw_1"
+  register: curl_result
+
+- name: Generate result report - Clean up tested data
+  shell: cat {{regression_result_path}}/{{ role_path|basename }}_raw_1 |grep -i 'Welcome to JBoss!'|uniq|wc -l > {{regression_result_path}}/{{ role_path|basename }}_result_1
+  delegate_to: localhost
+

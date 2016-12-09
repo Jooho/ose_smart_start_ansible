@@ -1,22 +1,14 @@
 ---
 - set_fact:
-     project_name: "sample-ssl-eap"
+     project_name: "sample-eap-ssl"
 
 - name: Delete test result File
   file: path={{regression_result_path}}/{{ item }} state=absent force=yes
   run_once: true
   with_items:
-     - "{{ role_path|basename }}_result_1"
      - "{{ role_path|basename }}_eap_ssl.cnf"
      - "keystore.jks"
      - "{{ role_path|basename }}_eap-service-account.yaml"
-  delegate_to: localhost
-
-- name: Create test result File
-  file: path={{regression_result_path}}/{{ item }} state=touch
-  run_once: true
-  with_items:
-     - "{{ role_path|basename }}_result_1"
   delegate_to: localhost
 
 - name: Execute `oc login`
@@ -26,18 +18,18 @@
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
   register: oc_login
 
-- name: Check if regression test project exist
+- name: Check if test project exist
   shell: "oc project {{project_name}}"
   ignore_errors: true
-  register: regression_project_exist
+  register: test_project_exist
 
-- name: Create regression test project if it does not exist
+- name: Create test project if it does not exist
   shell: " oc new-project {{project_name}} "
-  when: regression_project_exist|failed
+  when: test_project_exist|failed
 
 - name: Delete EAP secret and sa
   shell: " {{ item }} "
-  when: regression_project_exist|success
+  when: test_project_exist|success
   with_items:
     - " oc delete secret eap-app-secret"
     - " oc delete sa eap-service-account"
@@ -78,7 +70,6 @@
   file: path={{regression_result_path}}/{{ item }} state=absent force=yes
   run_once: true
   with_items:
-     - "{{ role_path|basename }}_result_1"
      - "{{ role_path|basename }}_eap_ssl.cnf"
      - "keystore.jks"
      - "{{ role_path|basename }}_eap-service-account.yaml"

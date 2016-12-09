@@ -1,0 +1,34 @@
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+
+[req_distinguished_name]
+countryName = CA
+countryName_default = CA
+stateOrProvinceName = ONTARIO
+stateOrProvinceName_default = ONTARIO
+localityName = Toronto
+localityName_default = Toronoto
+organizationName = Red Hat
+organizationName_default = Red Hat
+organizationalUnitName = Consulting
+organizationalUnitName_default = Consulting
+commonName = secure-eap-app-test.{{osm_default_subdomain}}
+commonName_default =  secure-eap-app-test.{{osm_default_subdomain}}
+commonName_max  = 64
+
+emailAddress = test@redhat.com
+emailAddress_default = test@redhat.com
+
+[req_attributes]
+challengePasssword = 'supersecret'
+
+[ v3_req ]
+# Extensions to add to a certificate request
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = secure-eap-app-test.{{osm_default_subdomain}}
+

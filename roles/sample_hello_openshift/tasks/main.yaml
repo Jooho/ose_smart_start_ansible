@@ -1,0 +1,80 @@
+---
+- set_fact:
+     project_name: "sample-hello-openshift"
+     fetch_path: "{{regression_result_path}}/{{inventory_hostname}}{{hello_openshift_certs.path}}"
+
+- name: Delete test result File
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  run_once: true
+  with_items:
+     - "hello_openshift_template.yaml"
+     - {{hello_openshift_certs.hostname}}.crt
+     - {{hello_openshift_certs.hostname}}.key
+
+- name: Execute `oc login`
+  shell: "{{ item }}"
+  with_items:
+    - "oc login -u '{{oc_login.user_id}}' -p '{{oc_login_password}}' --insecure-skip-tls-verify --server={{oc_login.url}}"
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
+  register: oc_login
+
+- name: Check if test project exist
+  shell: "oc project {{project_name}}"
+  ignore_errors: true
+  register: test_project_exist
+
+- name: Create test project if it does not exist
+  shell: " oc new-project {{project_name}} "
+  when: test_project_exist|failed
+
+- name: Delete all objects for reset
+  shell: " {{ item }} "
+  when: test_project_exist|success
+  ignore_errors: true
+  with_items:
+    - " oc delete template hello-openshift"
+    - " oc delete all -l app=hello-openshift-test"
+
+- name: Fetch master certificate files from remote.
+  fetch: src="{{ item }}" dest="{{regression_result_path}}" 
+  with_items:
+     - "{{ hello_openshift_certs.path }}/ca.key"
+     - "{{ hello_openshift_certs.path }}/ca.crt"
+     - "{{ hello_openshift_certs.path }}/ca.serial.txt"
+
+- name: Generate certificate
+  shell: "{{ item }}"
+  with_items:
+    - 'openssl req -new -newkey rsa:2048 -nodes -out {{fetch_path}}/{{hello_openshift_certs.hostname}}.csr -keyout  {{fetch_path}}/{{hello_openshift_certs.hostname}}.key -subj  "/C=US/ST=North Carolina/L=Raleigh/O=Red Hat/OU=PaaS Practics/CN={{hello_openshift_certs.hostname}}"'
+    - "openssl x509 -req -in  {{fetch_path}}/{{hello_openshift_certs.hostname}}.csr  -CA {{fetch_path}}/ca.crt  -CAkey {{fetch_path}}/ca.key -CAserial {{fetch_path}}/ca.serial.txt -out  {{fetch_path}}/{{hello_openshift_certs.hostname}}.crt -days 500"
+  delegate_to: localhost
+
+- name: Change permission for file
+  file: path={{fetch_path}} mode=0777 recurse=yes
+  delegate_to: localhost
+
+- name: Copy hello-openshift-template
+  copy: src="{{item.src}}" dest="{{item.dest}}" force="yes"
+  with_items:
+    - { src: "hello_openshift_template.yaml" , dest: "{{regression_result_path}}" }
+    - { src: "{{fetch_path}}/{{hello_openshift_certs.hostname}}.crt", dest: "{{regression_result_path}}" }
+    - { src: "{{fetch_path}}/{{hello_openshift_certs.hostname}}.key", dest: "{{regression_result_path}}" }
+  
+- name: Deploy hello-openshift application
+  command: "{{ item }}"
+  with_items:
+    - " oc create -f {{regression_result_path}}/hello_openshift_template.yaml "
+    - " oc new-app --template=hello-openshift -l app=hello-openshift-test"
+    - " oc expose svc/hello-openshift"
+    - " oc create route edge secure-hello-openshift --ca-cert={{ hello_openshift_certs.path }}/ca.crt --cert={{regression_result_path}}/{{hello_openshift_certs.hostname}}.crt --key=={{regression_result_path}}/{{hello_openshift_certs.hostname}}.key --service=hello-openshift --hostname={{hello_openshift_certs.hostname}}"
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
+
+
+- name: Delete test result File
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  run_once: true
+  with_items:
+     - "hello_openshift_template.yaml"
+     - {{hello_openshift_certs.hostname}}.crt
+     - {{hello_openshift_certs.hostname}}.key
+  delegate_to: localhost
