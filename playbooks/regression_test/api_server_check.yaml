@@ -13,7 +13,7 @@
    - name: set_facts - pwd_path
      set_fact:
         pwd_path: "{{pwd.stdout}}"
-        remote_host: "./remote_devices"
+   
    roles:
     - { role: reg_api_server_check } 
 
