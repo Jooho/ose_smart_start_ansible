@@ -17,10 +17,11 @@ From this role:
 | oc_login.user_id            | NONE                                          | OCP login user id                                                           |
 | oc_login_password           | NONE                                          | OCP login password                                                          |
 | oc_login.url                | NONE                                          | OCP api server url                                                          |
-| remote_test_host            | ' '                                           | Test host can be changed due to firewall rule                               |
+| remote_test_host            | ' '                                           | Test Host to execute oc commands                                          |
 | hello_openshift_certs       | NONE                                          | Specify certificate path and hostname for ssl                               |
 
 It is not recommaneded to save "oc_login_password" in group_var so please use extra_vars.
+remote_test_host can be configured when ansible host can not reach to oc api server due to firewall rule.
 
 
 Dependencies
@@ -29,7 +30,7 @@ Dependencies
 Example Execute Command
 -----------------------
 ```
-ansible-playbook  playbooks/sample_app/hello-openshift.yaml  -vvv  --extra-vars oc_login_password='password'
+ansible-playbook  playbooks/sample_app/hello-openshift.yaml --extra-vars oc_login_password='password' -vvv
 ```
 
 Example Playbook
@@ -49,10 +50,17 @@ Example Playbook
 Example group_vars
 ------------------
 ```
-oc_login: {user_id: "OpenShiftAdmin", url: "https://api.sbx.cloudapps.ao.dcn:8443"}
+oc_login: {user_id: "OpenShiftAdmin", url: "https://api.example.com:8443"}
 oc_login_password: "password"
-hello_openshift_certs: { path: "/etc/origin/master", hostname: "secure-hello-openshift.sbx.cloudapps.ao.dcn" }
+hello_openshift_certs: { path: "/etc/origin/master", hostname: "secure-hello-openshift.cloudapps.example.com" }
 remote_test_host: dev001.example.com
+```
+
+Test URL
+--------
+```
+http://hello-openshift.cloudapps.example.com
+https://secure-hello-openshift.cloudapps.example.com
 ```
 
 License
