@@ -23,7 +23,7 @@ From this role:
 | remote_test_host            | ' '                                           | Test host can be changed due to firewall rule                               |
 
 It is not recommaneded to save "oc_login_password" in group_var so please use extra_vars.
-
+remote_test_host can be configured when ansible host can not reach to oc api server due to firewall rule.
 
 Dependencies
 ------------
