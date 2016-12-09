@@ -1,7 +1,7 @@
-Regression Test - Internal  Docker Registry Check
+Regression Test - Deploy App from ImageStream (no build)
 ============
 
-This role check integrated docker regitstry - oc login/docker login/docker push/docker pull
+This role check if OCP deploy app with ImageStream (no build)
 
 Requirements
 ------------
@@ -14,9 +14,6 @@ From this role:
 | Name                        | Default value                                 | Description                                                                 |
 |-----------------------------|-----------------------------------------------|-----------------------------------------------------------------------------|
 | regression_result_path      | /tmp                                          | Regression Test result folder                                               |
-| internal_registry.user_id   | NONE                                          | Internal registry login user id                                             |
-| internal_registry.email     | NONE                                          | Internal registry login email                                               |
-| internal_registry.url       | ' '                                           | Internal registry login url                                                 |
 | oc_login.user_id            | NONE                                          | OCP login user id                                                           |
 | oc_login_password           | NONE                                          | OCP login password                                                          |
 | oc_login.url                | NONE                                          | OCP api server url                                                          |
@@ -31,19 +28,19 @@ Dependencies
 Example Execute Command
 -----------------------
 ```
-ansible-playbook  ./internal_registry_check.yaml  -vvv  --extra-vars oc_login_password='password'
+ansible-playbook  ./imageStream_deploy.yaml --extra-vars oc_login_password='password'  -vvvv
 ```
 
 Example Playbook
 ----------------
 
 ```
- - name: Check internal registry via router - oc login/docker login/docker push/docker pull
+ - name: Check if deploying application with ImageStream (no build)
    hosts: all
    gather_facts: false
 
    roles:
-    - { role: reg_internal_registry_check }
+    - { role: reg_imageStream_deploy }
 
 
 ```
@@ -51,17 +48,17 @@ Example Playbook
 Example group_vars
 ------------------
 ```
-internal_registry: {user_id: "OpenShiftAdmin", email: "test@gmail.com", url: "registry.sbx.cloudapps.ao.dcn"}
-oc_login: {user_id: "OpenShiftAdmin", url: "https://api.sbx.cloudapps.ao.dcn:8443"}
+internal_registry: {user_id: "OpenShiftAdmin", email: "test@gmail.com", url: "registry.cloudapps.example.com"}
+oc_login: {user_id: "OpenShiftAdmin", url: "https://api.example.com:8443"}
 oc_login_password: "password"
 remote_test_host: dev001.example.com
 ```
 
 Example Result 
 --------------
-reg_internal_registry_check_result_1
+reg_reg_imageStream_deploy_result_1
 ```
-0 0 0 0 0 0 0 0 0
+0 
 ```
 
 Report Rule
