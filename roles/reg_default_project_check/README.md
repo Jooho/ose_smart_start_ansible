@@ -38,6 +38,9 @@ Example Playbook
 
 Example group_vars
 ------------------
+```
+regression_result_path: "/tmp"
+```
 
 Example Result 
 --------------
