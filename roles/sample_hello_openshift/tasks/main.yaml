@@ -49,7 +49,7 @@
     - "openssl x509 -req -in  {{fetch_path}}/{{hello_openshift_certs.hostname}}.csr  -CA {{fetch_path}}/ca.crt  -CAkey {{fetch_path}}/ca.key -CAserial {{fetch_path}}/ca.serial.txt -out  {{fetch_path}}/{{hello_openshift_certs.hostname}}.crt -days 500"
   delegate_to: localhost
 
-- name: Change permission for file
+- name: Change permission for fetched files
   file: path={{fetch_path}} mode=0777 recurse=yes
   delegate_to: localhost
 
@@ -69,8 +69,7 @@
     - " oc create route edge secure-hello-openshift --ca-cert={{ hello_openshift_certs.path }}/ca.crt --cert={{regression_result_path}}/{{hello_openshift_certs.hostname}}.crt --key={{regression_result_path}}/{{hello_openshift_certs.hostname}}.key --service=hello-openshift --hostname={{hello_openshift_certs.hostname}}"
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
-
-- name: Delete test result File
+- name: Clean up test files
   file: path={{regression_result_path}}/{{ item }} state=absent force=yes
   run_once: true
   with_items:
