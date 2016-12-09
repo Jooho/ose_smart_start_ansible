@@ -28,10 +28,14 @@ Example Playbook
   gather_facts: false
 
    roles:
-    - { role: reg_dns_check , regression_result_path: /home/oseadmin}
+    - { role: reg_dns_check}
 
 ```
-
+Example group_vars
+------------------
+```
+regression_result_path: "/home/oseadmin"
+```
 License
 -------
 
