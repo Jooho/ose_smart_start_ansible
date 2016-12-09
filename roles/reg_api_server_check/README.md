@@ -1,7 +1,7 @@
-Regression Test - OCP SDN tunnelling check
+Regression Test - OCP API Server Health Check
 ============
 
-This role check if sdn networking work via ping test
+This role check if api server is running via health check url
 Requirements
 ------------
 
@@ -23,12 +23,12 @@ Example Playbook
 
 ```
 
- - name: Check if sdn networking work via ping test
+ - name: Check if api server is running via health check url
    hosts: all
    gather_facts: false
 
    roles:
-    - { role: reg_sdn_check }
+    - { role: reg_api_server_check  }
 
 
 ```
@@ -36,8 +36,8 @@ Example Playbook
 Example Result
 --------------
 ```
-master1.example.com 10.1.2.1 0%
-master2.example.com 10.1.0.1 0%
+master1.example.com ok
+master2.example.com ok
 ```
 
 License
