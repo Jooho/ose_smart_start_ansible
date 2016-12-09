@@ -1,7 +1,7 @@
 Regression Test - External Docker Registry Check
 ============
 
-If external docker regitstry is used instread of registry.access.redhat.com. This role help check if it is accessible from OCP hosts and possible to download images.
+If external docker regitstry is used instread of registry.access.redhat.com, this role help check if it is accessible from OCP hosts and be possible to download images.
 
 Requirements
 ------------
@@ -28,7 +28,7 @@ Dependencies
 Example Execute Command
 -----------------------
 ```
-ansible-playbook  ./external_registry_check.yaml  -vvv  --extra-vars=external_registry_password='password'
+ansible-playbook  ./external_registry_check.yaml    --extra-vars=external_registry_password='password' -vvv
 ```
 
 Example Playbook
@@ -55,14 +55,14 @@ Example Result (2 files)
 --------------
 reg_external_registry_check_result_1
 ```
-aoappd-e-mgt001.ctho.asbn.gtwy.dcn docker_login:0
-aoappd-e-mgt002.ctho.asbn.gtwy.dcn docker_login:0
+master1.example.com docker_login:0
+node1.example.com docker_login:0
 ```
 
 reg_external_registry_check_result_2
 ```
-aoappd-e-mgt001.ctho.asbn.gtwy.dcn docker_pull:0
-aoappd-e-mgt002.ctho.asbn.gtwy.dcn docker_pull:0
+master1.example.com docker_pull:0
+node1.example.com docker_pull:0
 ```
 License
 -------
