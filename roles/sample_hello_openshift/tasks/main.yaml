@@ -8,8 +8,8 @@
   run_once: true
   with_items:
      - "hello_openshift_template.yaml"
-     - {{hello_openshift_certs.hostname}}.crt
-     - {{hello_openshift_certs.hostname}}.key
+     - "{{hello_openshift_certs.hostname}}.crt"
+     - "{{hello_openshift_certs.hostname}}.key"
 
 - name: Execute `oc login`
   shell: "{{ item }}"
@@ -65,8 +65,8 @@
   with_items:
     - " oc create -f {{regression_result_path}}/hello_openshift_template.yaml "
     - " oc new-app --template=hello-openshift -l app=hello-openshift-test"
-    - " oc expose svc/hello-openshift"
-    - " oc create route edge secure-hello-openshift --ca-cert={{ hello_openshift_certs.path }}/ca.crt --cert={{regression_result_path}}/{{hello_openshift_certs.hostname}}.crt --key=={{regression_result_path}}/{{hello_openshift_certs.hostname}}.key --service=hello-openshift --hostname={{hello_openshift_certs.hostname}}"
+    - " oc expose svc/hello-openshift --hostname=hello-openshift.{{osm_default_subdomain}}"
+    - " oc create route edge secure-hello-openshift --ca-cert={{ hello_openshift_certs.path }}/ca.crt --cert={{regression_result_path}}/{{hello_openshift_certs.hostname}}.crt --key={{regression_result_path}}/{{hello_openshift_certs.hostname}}.key --service=hello-openshift --hostname={{hello_openshift_certs.hostname}}"
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 
@@ -75,6 +75,6 @@
   run_once: true
   with_items:
      - "hello_openshift_template.yaml"
-     - {{hello_openshift_certs.hostname}}.crt
-     - {{hello_openshift_certs.hostname}}.key
+     - "{{hello_openshift_certs.hostname}}.crt"
+     - "{{hello_openshift_certs.hostname}}.key"
   delegate_to: localhost

@@ -19,7 +19,7 @@
   delegate_to: localhost
 
 - name: Execute "curl" command to get SSL page
-  shell: " curl -k  https://secure-eap-app-test.sbx.cloudapps.ao.dcn/index.jsf -v >> {{regression_result_path}}/{{ role_path|basename }}_raw_1"
+  shell: " curl -k  https://secure-eap-app-test.{{osm_default_subdomain}}/index.jsf -v >> {{regression_result_path}}/{{ role_path|basename }}_raw_1"
   register: curl_result
 
 - name: Generate result report - Clean up tested data

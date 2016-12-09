@@ -14,9 +14,17 @@
    - name: set_facts - pwd_path
      set_fact:
         pwd_path: "{{pwd.stdout}}"
+        regression_result_path: "/tmp"
+   - name: Execute "curl" command to get SSL page
+     get_url: 
+         url:  https://secure-hello-openshift.sbx.cloudapps.ao.dcn 
+         dest: /tmp/test.out
+         validate_certs: no
+     register: curl_result
 
-   - name: Wait for deploying EAP application.
-     wait_for: host="secure-eap-app-test.{{osm_default_subdomain}}" port="443" state="drained" 
-
-
+   - name: Generate result report - Clean up tested data
+     shell: echo -n "$(echo {{item}}|grep -i OK |wc -l )" >>  {{regression_result_path}}/result.out
+     delegate_to: localhost
+     with_items:
+       - "{{curl_result.msg}}"
 
