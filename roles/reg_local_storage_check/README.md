@@ -26,7 +26,6 @@ Example Playbook
 ----------------
 
 ```
----
  - name: Check if local storage has enough spaces. Full of /var, /var/log, /var/lib/docker and docker-pool can impact OCP.
    hosts: all
    gather_facts: false
@@ -34,6 +33,24 @@ Example Playbook
    roles:
     - { role: reg_local_storage_check }
 
+```
+
+Example group_vars
+------------------
+
+
+Example Result 
+--------------
+reg_reg_imageStream_deploy_result_1
+```
+master1.example.com /var/log INFO:74%
+master2.example.com docker-pool INFO:78%
+```
+
+Report Rule
+-----------
+```
+report-rule.yaml.j2
 ```
 
 License
