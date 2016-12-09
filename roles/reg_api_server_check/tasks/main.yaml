@@ -3,15 +3,15 @@
   file: path={{regression_result_path}}/{{ item }} state=absent force=yes
   run_once: true
   with_items:
-     - "{{ role_path|basename }}"
-     - "{{ role_path|basename }}_raw"
+     - "{{ role_path|basename }}_result_1"
+     - "{{ role_path|basename }}_raw_1"
   delegate_to: localhost
 
 - name: Create test result File
   file: path={{regression_result_path}}/{{ item }} state=touch
   run_once: true
   with_items:
-     - "{{ role_path|basename }}"
+     - "{{ role_path|basename }}_result_1"
   delegate_to: localhost
 
 - name: Api server health check on masters
@@ -19,7 +19,7 @@
   register: api_health_check
 
 - name: Generate result report 
-  shell: "echo {{inventory_hostname}} {{item.stdout}} >> {{regression_result_path}}/{{ role_path|basename }}"
+  shell: "echo {{inventory_hostname}} {{item.stdout}} >> {{regression_result_path}}/{{ role_path|basename }}_result_1"
   delegate_to: localhost
   with_items:
      - "{{api_health_check}}"
