@@ -17,6 +17,8 @@ From this role:
 Dependencies
 ------------
 
+Example Execute Command
+-----------------------
 
 Example Playbook
 ----------------
@@ -31,6 +33,11 @@ Example Playbook
     - { role: reg_api_server_check  }
 
 
+```
+Example group_vars
+------------------
+```
+regression_result_path: "/tmp"
 ```
 
 Example Result
