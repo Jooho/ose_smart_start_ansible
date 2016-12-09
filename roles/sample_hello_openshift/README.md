@@ -30,7 +30,7 @@ Dependencies
 Example Execute Command
 -----------------------
 ```
-ansible-playbook  playbooks/sample_app/hello-openshift.yaml --extra-vars oc_login_password='password' -vvv
+ansible-playbook  playbooks/sample_app/hello-openshift.yaml --extra-vars oc_login_password='password' -vvvv
 ```
 
 Example Playbook
