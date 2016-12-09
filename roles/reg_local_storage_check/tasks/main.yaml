@@ -3,28 +3,28 @@
   file: path={{regression_result_path}}/{{ item }} state=absent force=yes
   run_once: true
   with_items:
-     - "{{ role_path|basename }}"
-     - "{{ role_path|basename }}_raw"
+     - "{{ role_path|basename }}_result_1"
+     - "{{ role_path|basename }}_raw_1"
   delegate_to: localhost
 
 - name: Create test result File
   file: path={{regression_result_path}}/{{ item }} state=touch
   run_once: true
   with_items:
-     - "{{ role_path|basename }}"
+     - "{{ role_path|basename }}_result_1"
   delegate_to: localhost
 
 - name: Execute 'df command'
-  shell: "df -h > {{regression_result_path}}/{{ role_path|basename }}_raw"
+  shell: "df -h > {{regression_result_path}}/{{ role_path|basename }}_raw_1"
 
 - name: Execute 'lvs command'
-  shell:  "lvs  |grep docker-pool |awk '{print \"lvm 0 0 0 \" int($5 + $6) \"% \" $1} '  >>  {{regression_result_path}}/{{ role_path|basename }}_raw "
+  shell:  "lvs  |grep docker-pool |awk '{print \"lvm 0 0 0 \" int($5 + $6) \"% \" $1} '  >>  {{regression_result_path}}/{{ role_path|basename }}_raw_1 "
 
 - name: Fetch raw result file
-  fetch: src={{regression_result_path}}/{{ role_path|basename }}_raw dest={{regression_result_path}}
+  fetch: src={{regression_result_path}}/{{ role_path|basename }}_raw_1 dest={{regression_result_path}}
 
 - name: Load the raw data
-  command: cat  {{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_raw
+  command: cat  {{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_raw_1
   register: raw_data
   delegate_to: localhost
 

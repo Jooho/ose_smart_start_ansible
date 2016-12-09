@@ -1,8 +1,8 @@
 
 #!/usr/bin/bash
-result_filename="{{regression_result_path}}/{{ role_path|basename }}"
-raw_filename="{{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_raw"
-raw_sort_filename="{{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_raw_sort"
+result_filename="{{regression_result_path}}/{{ role_path|basename }}_result_1"
+raw_filename="{{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_raw_1"
+raw_sort_filename="{{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_raw_sort_1"
 cat ${raw_filename} | sort --key 5 -g -r > ${raw_sort_filename}
 while read -r line
 do
