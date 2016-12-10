@@ -16,6 +16,7 @@
 
 - name: Execute 'openshift ex diagnostics'
   shell: openshift ex diagnostics > {{regression_result_path}}/{{ role_path|basename }}_raw_1
+  ignore_errors: true
 
 - name: Fetch raw result file
   fetch: src={{regression_result_path}}/{{ role_path|basename }}_raw_1 dest={{regression_result_path}}

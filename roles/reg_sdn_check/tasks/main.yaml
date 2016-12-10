@@ -37,19 +37,33 @@
 - name: List up ping target list for masters from hostsubnet information
   shell:  cat {{regression_result_path}}/{{ role_path|basename }}_raw_1 |egrep -v "NAME|$(hostname)" |egrep "{{master_list.stdout}}"|awk '{print $4}'|sed 's/0\/24/1/g'
   when: "{{firewall_between_master_node}} and {{inventory_hostname in groups.masters}}"
-  register: ping_target_list
+  register: ping_target_master_list
 
 - name: List up ping target list for nodes from hostsubnet information
   shell:  cat {{regression_result_path}}/{{ role_path|basename }}_raw_1 |egrep -v "NAME|$(hostname)|{{master_list.stdout}}"|awk '{print $4}'|sed 's/0\/24/1/g'
   when: "{{firewall_between_master_node}} and {{inventory_hostname in groups.nodes}}"
-  register: ping_target_list
+  register: ping_target_node_list
 
 - name: Execute Ping test for all
   shell: ping -c 1 {{ item }}|grep "packets transmitted" |awk '{print "{{inventory_hostname}} {{item}} "   $6}'  
+  when: "{{ not firewall_between_master_node}}"
   with_items:
      - "{{ ping_target_list.stdout_lines}}"
   register: ping_test_result
 
+- name: Execute Ping test for masters
+  shell: ping -c 1 {{ item }}|grep "packets transmitted" |awk '{print "{{inventory_hostname}} {{item}} "   $6}'  
+  when: "{{firewall_between_master_node}} and {{inventory_hostname in groups.masters}}"
+  with_items:
+     - "{{ ping_target_master_list.stdout_lines}}"
+  register: ping_test_result
+
+- name: Execute Ping test for node
+  shell: ping -c 1 {{ item }}|grep "packets transmitted" |awk '{print "{{inventory_hostname}} {{item}} "   $6}'  
+  when: "{{firewall_between_master_node}} and {{inventory_hostname in groups.nodes}}"
+  with_items:
+     - "{{ ping_target_node_list.stdout_lines}}"
+  register: ping_test_result
 - name: Generate result report 
   shell: "echo {{item.stdout}} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1"
   delegate_to: localhost
