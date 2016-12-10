@@ -1,2 +1,3 @@
 ---
 remote_test_host: ''
+ocp_config_path: /etc/origin/master
