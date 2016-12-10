@@ -1,7 +1,7 @@
 
 ---
  - include: ../common/master_config_facts.yaml
- - name: Check external registry : docker login/docker pull  
+ - name: Check external registry - docker login/docker pull  
    hosts: all
    gather_facts: false
    

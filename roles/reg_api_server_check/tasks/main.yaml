@@ -16,12 +16,17 @@
 
 - name: Api server health check on masters
   shell: "curl -k https://localhost:8443/healthz" 
+  ignore_errors: yes
   register: api_health_check
 
 - name: Generate result report 
-  shell: "echo {{inventory_hostname}} {{item.stdout}} >> {{regression_result_path}}/{{ role_path|basename }}_result_1"
+  shell: "echo {{inventory_hostname}} {{'FAIL' if item.stdout != 'ok' else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_raw_1"
   delegate_to: localhost
   with_items:
      - "{{api_health_check}}"
+
+- name: Sort docker pull image result report
+  shell: sort {{regression_result_path}}/{{ role_path|basename }}_raw_1 -o  {{regression_result_path}}/{{ role_path|basename }}_result_1
+  delegate_to: localhost
 
 

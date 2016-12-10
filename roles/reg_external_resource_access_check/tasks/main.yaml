@@ -17,7 +17,7 @@
 
 - name: Install NMAP for test
   package: name=nmap state=present use=yum
-  sudo: true
+  become: yes
 
 - name: Check resource is accessible
   shell: nmap {{item.url }} -p {{ item.port }} -Pn |grep -A10 PORT|egrep -v 'PORT|Nmap' |sed '/^$/d'| awk '{print "{{inventory_hostname}} {{item.url}} " $1 " " $2}'
@@ -25,11 +25,6 @@
   with_items:
     - "{{ external_resources }}"
   register: nmap_result_raw
-
-- debug: msg="{{item.stdout_lines}}"
-  with_items:
-    - "{{ nmap_result_raw.results}}"
-  register: nmap_result_stdout
 
 - name: Generate result report
   shell: echo "{{item.stdout}}"  >> {{regression_result_path}}/{{ role_path|basename }}_temp_1
@@ -45,4 +40,4 @@
 
 - name: Remove NMAP for test
   package: name=nmap state=absent use=yum
-  sudo: true
+  become: yes

@@ -36,10 +36,10 @@
   register: non_ssl_result
   ignore_errors: yes
 
-- name: Generate result report - Clean up tested data
-  shell: echo -n "$(echo '{{item}}'|grep -i OK |wc -l) " >> {{regression_result_path}}/{{ role_path|basename }}_result_1
+- name: Generate result report  
+  shell: echo -n "{{item.test_name}}:{{'FAIL' if item.test_result.msg != 'OK (17 bytes)' else 'SUCCESS' }} " >> {{regression_result_path}}/{{ role_path|basename }}_result_1
   delegate_to: localhost
   with_items:
-    - "{{ssl_result.msg}}"
-    - "{{non_ssl_result.msg}}"
+    - { test_name: 'ssl_test', test_result: "{{ssl_result}}"}
+    - { test_name: 'non_ssl_test', test_result: "{{non_ssl_result}}"}
 

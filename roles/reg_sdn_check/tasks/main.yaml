@@ -3,17 +3,21 @@
   file: path={{regression_result_path}}/{{ item }} state=absent force=yes
   run_once: true
   with_items:
-     - "{{ role_path|basename }}"
-     - "{{ role_path|basename }}_raw"
-     - "{{ role_path|basename }}_before_temp"
+     - "{{ role_path|basename }}_result_1"
+     - "{{ role_path|basename }}_raw_1"
+     - "{{ role_path|basename }}_temp_1"
   delegate_to: localhost
 
 - name: Create test result File
   file: path={{regression_result_path}}/{{ item }} state=touch
   run_once: true
   with_items:
-     - "{{ role_path|basename }}"
+     - "{{ role_path|basename }}_result_1"
   delegate_to: localhost
+
+- shell: echo {{groups.masters}} |sed 's/,/|/g; s/\[u/''/g; s/\]/''/g; s/| u/|/g'
+  when: "{{firewall_between_master_node}}"
+  register: master_list
 
 - name: Execute 'oc get hostsubnet'
   shell: oc get hostsubnet 
@@ -21,31 +25,38 @@
   delegate_to: "{{groups.masters.0}}"
   register: hostsubnet
 
-- name: Fetch raw result file
-  fetch: src={{regression_result_path}}/{{ role_path|basename }}_raw dest={{regression_result_path}}
+- name: Copy raw result to local raw file
+  copy: content="{{hostsubnet.stdout}}" dest="{{regression_result_path}}/{{ role_path|basename }}_raw_1"
   delegate_to: localhost
 
-- name: Copy raw result file to all hosts
-  copy: content="{{hostsubnet.stdout}}" dest="{{regression_result_path}}/{{ role_path|basename }}_raw"
-
-- name: List up ping target list from hostsubnet information
-  shell:  cat {{regression_result_path}}/{{ role_path|basename }}_raw |grep -iv NAME |grep -v $(hostname)|awk '{print $4}'|sed 's/0\/24/1/g'
+- name: List up ping target list for all from hostsubnet information
+  shell:  cat {{regression_result_path}}/{{ role_path|basename }}_raw_1 |egrep -v "NAME|$(hostname)" |awk '{print $4}'|sed 's/0\/24/1/g'
+  when: "{{ not firewall_between_master_node}}"
   register: ping_target_list
 
+- name: List up ping target list for masters from hostsubnet information
+  shell:  cat {{regression_result_path}}/{{ role_path|basename }}_raw_1 |egrep -v "NAME|$(hostname)" |egrep "{{master_list.stdout}}"|awk '{print $4}'|sed 's/0\/24/1/g'
+  when: "{{firewall_between_master_node}} and {{inventory_hostname in groups.masters}}"
+  register: ping_target_list
 
-- name: Execute Ping test
+- name: List up ping target list for nodes from hostsubnet information
+  shell:  cat {{regression_result_path}}/{{ role_path|basename }}_raw_1 |egrep -v "NAME|$(hostname)|{{master_list.stdout}}"|awk '{print $4}'|sed 's/0\/24/1/g'
+  when: "{{firewall_between_master_node}} and {{inventory_hostname in groups.nodes}}"
+  register: ping_target_list
+
+- name: Execute Ping test for all
   shell: ping -c 1 {{ item }}|grep "packets transmitted" |awk '{print "{{inventory_hostname}} {{item}} "   $6}'  
   with_items:
-     - "{{ping_target_list.stdout_lines}}"
+     - "{{ ping_target_list.stdout_lines}}"
   register: ping_test_result
 
 - name: Generate result report 
-  shell: "echo {{item.stdout}} >> {{regression_result_path}}/{{ role_path|basename }}_before_temp"
+  shell: "echo {{item.stdout}} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1"
   delegate_to: localhost
   with_items:
      - "{{ping_test_result.results}}"
 
 - name: Sort result report 
-  shell: "sort {{regression_result_path}}/{{ role_path|basename }}_before_temp >>  {{regression_result_path}}/{{ role_path|basename }}"
+  shell: "sort {{regression_result_path}}/{{ role_path|basename }}_temp_1 >>  {{regression_result_path}}/{{ role_path|basename }}_result_1"
   run_once: true
   delegate_to: localhost

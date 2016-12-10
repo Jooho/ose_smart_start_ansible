@@ -13,6 +13,7 @@ From this role:
 | Name                    | Default value                                 | Description                                                                 |
 |-------------------------|-----------------------------------------------|-----------------------------------------------------------------------------|
 | regression_result_path  | /tmp                                          | Regression Test result folder                                               |
+| firewall_between_master_node  | no                                      | If firewall exist between masters and nodes(yes)                            |
 
 Dependencies
 ------------

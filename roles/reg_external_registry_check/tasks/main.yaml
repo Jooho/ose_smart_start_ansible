@@ -32,7 +32,8 @@
   register: docker_pull_test
 
 - name: Generate docker login result report
-  shell: echo {{inventory_hostname}} docker_login:{{item.rc}} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1 
+  shell: echo {{inventory_hostname}} docker_login:{{'FAIL' if item.rc != 0 else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1 
+  ignore_errors: true
   with_items:
      - "{{ docker_login }}"
   delegate_to: localhost
@@ -42,7 +43,7 @@
   delegate_to: localhost
 
 - name: Generate docker pull image result report
-  shell: echo {{inventory_hostname}} docker_pull:{{item.rc}} >> {{regression_result_path}}/{{ role_path|basename }}_temp_2 
+  shell: echo {{inventory_hostname}} docker_pull:{{'FAIL' if item.rc != 0 else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_temp_2 
   with_items:
      - "{{ docker_pull_test.results }}"
   ignore_errors: true

@@ -40,7 +40,7 @@ Example Playbook
  - name: Deploy Hello Openshift SSL/NON-SSL application
    hosts: masters[0]
    gather_facts: false
-   sudo: true
+   become: yes
 
    roles:
     - { role: sample_hello_openshift }

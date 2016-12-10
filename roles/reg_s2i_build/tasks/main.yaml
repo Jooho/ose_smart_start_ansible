@@ -15,14 +15,25 @@
   run_once: true
   with_items:
      - "{{ role_path|basename }}_result_1"
-     - "{{ role_path|basename }}_raw_1"
   delegate_to: localhost
 
-- name: Execute "curl" command to get SSL page
-  shell: " curl -k  https://secure-eap-app-test.{{osm_default_subdomain}}/index.jsf -v >> {{regression_result_path}}/{{ role_path|basename }}_raw_1"
-  register: curl_result
+- name: Execute "curl" command to get EAP SSL page
+  get_url:
+    url: "https://secure-eap-app-test.{{osm_default_subdomain}}/index.jsf"
+    dest: "{{regression_result_path}}/{{ role_path|basename }}_raw_1"
+    force: yes
+    validate_certs: no
+  delegate_to: localhost
+  ignore_errors: yes
 
-- name: Generate result report - Clean up tested data
-  shell: cat {{regression_result_path}}/{{ role_path|basename }}_raw_1 |grep -i 'Welcome to JBoss!'|uniq|wc -l > {{regression_result_path}}/{{ role_path|basename }}_result_1
+- name: Check Page is loaded properly
+  shell: echo "$(cat {{regression_result_path}}/{{ role_path|basename }}_raw_1 |grep -i 'Welcome to JBoss!'|uniq|wc -l)"
+  register: eap_ssl_result
+  delegate_to: localhost
+
+- name: Generate result report 
+  shell: echo "s2i_build:{{'FAIL' if item.stdout != '1' else 'SUCCESS' }}" >> {{regression_result_path}}/{{ role_path|basename }}_result_1
+  with_items:
+     - "{{ eap_ssl_result }}"
   delegate_to: localhost
 

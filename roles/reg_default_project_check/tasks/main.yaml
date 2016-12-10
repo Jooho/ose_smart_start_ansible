@@ -27,5 +27,5 @@
 
 - name: Generate result report for pod status
   script: " {{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_generate_report.sh"
-  sudo: true
+  become: yes
   delegate_to: localhost

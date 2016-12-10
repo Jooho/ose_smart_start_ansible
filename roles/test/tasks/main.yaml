@@ -1,0 +1,7 @@
+
+- name: run myfacts module to get customized facts
+  myfacts: get_facts=yes
+
+- name: update file with the customized facts
+  template: src=myfacts.txt.j2 dest=/tmp/myfacts.txt
+  delegate_to: localhost

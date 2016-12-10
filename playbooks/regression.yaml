@@ -8,6 +8,16 @@
   - include: ./regression_test/local_storage_check.yaml
   - include: ./regression_test/squid_status.yaml
   - include: ./regression_test/sdn_check.yaml
+  - include: ./regression_test/api_server_check.yaml
+  - include: ./regression_test/default_project_check.yaml
+  - include: ./regression_test/external_registry_check.yaml
+  - include: ./regression_test/internal_registry_check.yaml
+  - include: ./regression_test/external_resource_access_check.yaml
+  - include: ./regression_test/imageStream_deploy.yaml
+  - include: ./regression_test/s2i_build.yaml
+  - include: ./sample_app/hello_openshift.yaml
+  - include: ./sample_app/eap_ssl.yaml
+
 
 
 

@@ -16,7 +16,6 @@
   with_items:
     - "oc login -u '{{oc_login.user_id}}' -p '{{oc_login_password}}' --insecure-skip-tls-verify --server={{oc_login.url}}"
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
-  register: oc_login
 
 - name: Check if test project exist
   shell: "oc project {{project_name}}"
@@ -30,14 +29,11 @@
 - name: Delete EAP secret and sa
   shell: " {{ item }} "
   when: test_project_exist|success
+  ignore_errors: true
   with_items:
     - " oc delete secret eap-app-secret"
     - " oc delete sa eap-service-account"
     - " oc delete all -l app=eap-app-test"
-
-- name: Copy eap_ssl.cnf file to regression_test folder
-  template: src="eap_ssl.cnf.j2" dest="{{regression_result_path}}/{{ role_path|basename }}_eap_ssl.cnf"
-  delegate_to: localhost
 
 - name: Generate Self Sign Certs
   command: keytool -genkey -keyalg RSA -alias selfsigned -keystore {{regression_result_path}}/keystore.jks -storepass supersecret -keypass supersecret -validity 360 -keysize 2048  -dname 'cn=secure-eap-app-test.{{osm_default_subdomain}}, ou=Consult, o=Red Hat, l=Toronto, st=Ontario c=CA'

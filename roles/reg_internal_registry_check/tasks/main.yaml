@@ -3,21 +3,23 @@
      project_name: "regression-test"
 
 - name: Delete test result File
-  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes mode=777
   run_once: true
   with_items:
      - "{{ role_path|basename }}_result_1"
+     - "{{ role_path|basename }}_raw_1"
   delegate_to: localhost
 
 - name: Create test result File
-  file: path={{regression_result_path}}/{{ item }} state=touch
+  file: path={{regression_result_path}}/{{ item }} state=touch mode=777
   run_once: true
   with_items:
      - "{{ role_path|basename }}_result_1"
+     - "{{ role_path|basename }}_raw_1"
   delegate_to: localhost
 
 - name: docker login with external registry from master node
-  shell: " {{ item }}"
+  shell: "{{ item }}"
   with_items:
     - "oc login -u '{{oc_login.user_id}}' -p '{{oc_login_password}}' --insecure-skip-tls-verify --server={{oc_login.url}}"
     - "docker login -u '{{internal_registry.user_id}}' -e {{internal_registry.email}} -p $(oc whoami -t) {{internal_registry.url}}"
@@ -52,19 +54,22 @@
   register: docker_pull_test
 
 - name: Generate result report - oc_login/docker_login
-  shell: echo -n "{{item.rc}} " >> {{regression_result_path}}/{{ role_path|basename }}_result_1
+  shell: echo "{{item[1]}}:{{'FAIL' if item[0].rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
   delegate_to: localhost
-  with_items:
+  with_nested:
      - "{{ docker_login.results }}" 
+     - [ '1_oc_login', '2_docker_login' ]
 
 - name: Generate result report - docker pull,tag,push busybox
-  shell: echo -n "{{item.rc}} " >> {{regression_result_path}}/{{ role_path|basename }}_result_1
+  shell: echo "{{item[1]}}:{{'FAIL' if item[0].rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
   delegate_to: localhost
-  with_items:
+  run_once: yes
+  with_nested:
      - "{{ docker_push_test.results }}" 
+     - [ '3_docker_pull_from_docker_io' , '4_docker_tag' , '5_docker_push_to_internal']
 
 - name: Generate result report - docker pull pushed image
-  shell: echo -n "{{item.rc}} " >> {{regression_result_path}}/{{ role_path|basename }}_result_1
+  shell: echo "6.docker_pull_from_internal:{{'FAIL' if item.rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
   delegate_to: localhost
   with_items:
      - "{{ docker_pull_test.results }}" 
@@ -80,8 +85,15 @@
   register: clean_data
 
 - name: Generate result report - Clean up tested data
-  shell: echo -n "{{item.rc}} " >> {{regression_result_path}}/{{ role_path|basename }}_result_1
+  shell:  echo "{{item[1]}}:{{'FAIL' if item[0].rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
   delegate_to: localhost
-  with_items:
+  with_nested:
      - "{{ clean_data.results }}"
+     - [ '7_remove_internal_image' , '8_remove_dockerio_image' , '9_remove_test_project']
+
+- name: Reformat result file
+  shell: cat {{regression_result_path}}/{{ role_path|basename }}_raw_1|sort|uniq|tr '\n' ' ' >>  {{regression_result_path}}/{{ role_path|basename }}_result_1
+  delegate_to: localhost
+
+
 

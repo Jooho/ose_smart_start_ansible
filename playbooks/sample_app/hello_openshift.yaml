@@ -4,7 +4,7 @@
  - name: Deploy Hello Openshift SSL/NON-SSL application
    hosts: masters[0]
    gather_facts: false
-   sudo: true
+   become: yes
 
    pre_tasks:
    - name: set concurrent path

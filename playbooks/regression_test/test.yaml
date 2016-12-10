@@ -15,16 +15,51 @@
      set_fact:
         pwd_path: "{{pwd.stdout}}"
         regression_result_path: "/tmp"
-   - name: Execute "curl" command to get SSL page
-     get_url: 
-         url:  https://secure-hello-openshift.sbx.cloudapps.ao.dcn 
-         dest: /tmp/test.out
-         validate_certs: no
-     register: curl_result
+        role_path: reg_sdn_check
+        master_list: "{{groups.masters}}"
+#   - name: Execute "curl" command to get SSL page
+#     get_url: 
+#         url:  https://secure-hello-openshift.sbx.cloudapps.ao.dcn 
+#         dest: /tmp/test.out
+#         validate_certs: no
+#     register: curl_result
+#
+   - name: Execute 'oc get hostsubnet'
+     shell: oc get hostsubnet
+     run_once: true
+     delegate_to: "{{groups.masters.0}}"
+     register: hostsubnet
+  
+ #- name: Fetch raw result file
+ #  fetch: src={{regression_result_path}}/{{ role_path|basename }}_raw_1 dest={{regression_result_path}}
+ #  delegate_to: localhost
+ 
+#   - name: Copy raw result file to all hosts
+#     copy: content="{{hostsubnet.stdout}}" dest="{{regression_result_path}}/{{ role_path|basename }}_raw_1"
+#     delegate_to: localhost
 
-   - name: Generate result report - Clean up tested data
-     shell: echo -n "$(echo {{item}}|grep -i OK |wc -l )" >>  {{regression_result_path}}/result.out
-     delegate_to: localhost
-     with_items:
-       - "{{curl_result.msg}}"
+#   - name: Node Target List 
+#     shell: echo -n "{{item}}|" >> {{regression_result_path}}/{{ role_path|basename }}_temp_1
+#     delegate_to: localhost
+#     register: master_list
+#     with_items:
+#         - "{{groups.masters}}"
+
+   
+   - shell: echo {{master_list}} |sed 's/,/|/g; s/\[u/''/g ; s/\]/''/g; s/| u/|/g'
+     register: master_list
+
+   - name: List up ping target list from hostsubnet information
+     shell: cat {{regression_result_path}}/{{ role_path|basename }}_raw_1 |egrep -v "NAME|{{inventory_hostname}}|{{master_list.stdout}}"
+     when: "{{firewall_between_master_node}}"
+     register: ping_master_target_list
+#
+     #shell: cat {{regression_result_path}}/{{ role_path|basename }}_raw_1 |egrep -v "NAME|{{inventory_hostname}}|{{groups.nodes}}}|awk '{print $4}'|sed 's/0\/24/1/g'
+ 
+# - name: Execute Ping test
+#   shell: ping -c 1 {{ item }}|grep "packets transmitted" |awk '{print "{{inventory_hostname}} {{item}} "   $6}'
+#   when:
+#   with_items:
+#      - "{{ping_target_list.stdout_lines}}"
+#   register: ping_test_result
 
