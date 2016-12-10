@@ -56,19 +56,35 @@
   when: "{{firewall_between_master_node}} and {{inventory_hostname in groups.masters}}"
   with_items:
      - "{{ ping_target_master_list.stdout_lines}}"
-  register: ping_test_result
+  register: ping_test_master_result
 
 - name: Execute Ping test for node
   shell: ping -c 1 {{ item }}|grep "packets transmitted" |awk '{print "{{inventory_hostname}} {{item}} "   $6}'  
   when: "{{firewall_between_master_node}} and {{inventory_hostname in groups.nodes}}"
   with_items:
      - "{{ ping_target_node_list.stdout_lines}}"
-  register: ping_test_result
+  register: ping_test_node_result
+
 - name: Generate result report 
   shell: "echo {{item.stdout}} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1"
+  when: "{{ not firewall_between_master_node}}"
   delegate_to: localhost
   with_items:
      - "{{ping_test_result.results}}"
+
+- name: Generate result report 
+  shell: "echo {{item.stdout}} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1"
+  when: "{{firewall_between_master_node}} and {{inventory_hostname in groups.masters}}"
+  delegate_to: localhost
+  with_items:
+     - "{{ping_test_master_result.results}}"
+
+- name: Generate result report 
+  shell: "echo {{item.stdout}} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1"
+  when: "{{firewall_between_master_node}} and {{inventory_hostname in groups.nodes}}"
+  delegate_to: localhost
+  with_items:
+     - "{{ping_test_node_result.results}}"
 
 - name: Sort result report 
   shell: "sort {{regression_result_path}}/{{ role_path|basename }}_temp_1 >>  {{regression_result_path}}/{{ role_path|basename }}_result_1"
