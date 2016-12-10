@@ -18,15 +18,6 @@
      - "{{ role_path|basename }}_raw_1"
   delegate_to: localhost
 
-- name: Create directory named internal_registry_url contains ca.crt 
-  file: path="/etc/docker/certs.d/{{internal_registry.url}}" state=directory 
-  delegate_to: localhost
-
-- name: Fetch master certificate files from remote.
-  fetch: src="{{ item }}" dest="/etc/docker/certs.d/{{internal_registry.url}}"
-  with_items:
-     - "{{ocp_config_path}}/ca.crt"
-
 - name: docker login with external registry from master node
   shell: "{{ item }}"
   with_items:
