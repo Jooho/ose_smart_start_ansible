@@ -21,12 +21,14 @@
 
 - name: docker login with external registry
   shell: docker login -u '{{external_registry.user_id}}' -e {{external_registry.email}} -p '{{external_registry_password}}' {{external_registry.url}}
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
   register: docker_login
   ignore_errors: true
 
 - name: docker pull test
   shell: docker pull {{external_registry.url}}/openshift/hello-openshift
   ignore_errors: true
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
   with_items:
      - "{{ docker_login }}"
   register: docker_pull_test

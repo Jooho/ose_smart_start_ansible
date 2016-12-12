@@ -5,6 +5,8 @@ If external docker regitstry is used instread of registry.access.redhat.com, thi
 
 Requirements
 ------------
+The host that this role is executed need certs file for external docker regitstry under /etc/docker/certs.d/{{external_registry.url }}
+Default host is the first vm of masters and it can be changed with `remote_test_host` variable.
 
 Role Variables
 --------------
@@ -18,8 +20,12 @@ From this role:
 | external_registry.email | NONE                                          | External registry login email                                               |
 | external_registry.url   | NONE                                          | External registry login url                                                 |
 | external_registry_password  | NONE                                      | External registry login password(NOTE: variable name format different       |
+| remote_test_host        | ' '                                           | Test host can be changed due to firewall rule                               |
 
 It is not recommaneded to save "external_registry_password" in group_var so please use extra_vars.
+remote_test_host can be configured when ansible host can not reach to oc api server due to firewall rule.
+
+
 
 
 Dependencies

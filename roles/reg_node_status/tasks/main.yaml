@@ -15,7 +15,11 @@
   delegate_to: localhost
 
 - name: Execute 'oc get node'
-  shell: oc get node > {{regression_result_path}}/{{ role_path|basename }}_raw_1
+  shell: "{{ item }}"
+  with_items:
+    - "oc login -u '{{oc_login.user_id}}' -p '{{oc_login_password}}' --insecure-skip-tls-verify --server={{oc_login.url}}"
+    - "oc get node > {{regression_result_path}}/{{ role_path|basename }}_raw_1"
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Fetch raw result file
   fetch: src={{regression_result_path}}/{{ role_path|basename }}_raw_1 dest={{regression_result_path}}

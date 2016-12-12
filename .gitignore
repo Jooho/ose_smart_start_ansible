@@ -1,4 +1,5 @@
 usc/
+OCP_config_files/
 *.retry
 inventories/stg
 inventories/sbx
