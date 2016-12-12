@@ -1,7 +1,7 @@
 
 ---
  - include: ../common/master_config_facts.yaml
-# - include: ../sample_app/eap_ssl.yaml
+ - include: ../sample_app/eap_ssl.yaml
 
  - name: Check if S2I build is working properly
    hosts: masters[0]
@@ -17,7 +17,7 @@
         pwd_path: "{{pwd.stdout}}"
 
    - name: Wait for deploying EAP application.
-     wait_for: host="secure-eap-app-test.{{osm_default_subdomain}}" port="443" state="started" delay="1"
+     wait_for: host="secure-eap-app-test.{{osm_default_subdomain}}" port="443" state="started" delay="60"
      delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
    roles:

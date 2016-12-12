@@ -11,6 +11,15 @@
      - "{{ role_path|basename }}_raw_2"
   delegate_to: localhost
 
+- name: Delete test result File
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  run_once: true
+  with_items:
+     - "{{ role_path|basename }}_result_1"
+     - "{{ role_path|basename }}_raw_1"
+     - "{{ role_path|basename }}_raw_2"
+  delegate_to: "{{ localhost if remote_test_host == ' ' else remote_test_host}}"
+
 - name: Create test result File
   file: path={{regression_result_path}}/{{ item }} state=touch
   run_once: true
@@ -23,7 +32,7 @@
      url: "https://secure-hello-openshift.{{osm_default_subdomain}}"
      dest: "{{regression_result_path}}/{{ role_path|basename }}_raw_1"
      validate_certs: no
-  delegate_to: localhost
+  delegate_to: "{{ localhost if remote_test_host == ' ' else remote_test_host}}"
   register: ssl_result
   ignore_errors: yes
 
@@ -32,9 +41,27 @@
      url: "http://hello-openshift.{{osm_default_subdomain}}" 
      dest: "{{regression_result_path}}/{{ role_path|basename }}_raw_2"
      validate_certs: no
-  delegate_to: localhost
+  delegate_to: "{{ localhost if remote_test_host == ' ' else remote_test_host}}"
   register: non_ssl_result
   ignore_errors: yes
+
+- name: Fetch raw data
+  fetch: src="{{regression_result_path}}/{{ role_path|basename }}_raw_1" dest="{{regression_result_path}}/{{ role_path|basename }}_raw_1" flat=yes
+  when: ssl_result|success
+
+- name: Fetch raw data
+  fetch: src="{{regression_result_path}}/{{ role_path|basename }}_raw_2" dest="{{regression_result_path}}/{{ role_path|basename }}_raw_2" flat=yes
+  when: non_ssl_result|success
+
+- name: If curl failed, save the reason to raq file
+  shell: echo "{{curl_secure_eap.response}}" >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
+  when: ssl_result|failed
+  delegate_to: localhost
+
+- name: If curl failed, save the reason to raq file
+  shell: echo "{{curl_secure_eap.response}}" >> {{regression_result_path}}/{{ role_path|basename }}_raw_2
+  when: non_ssl_result|failed
+  delegate_to: localhost
 
 - name: Generate result report  
   shell: echo -n "{{item.test_name}}:{{'FAIL' if item.test_result.msg != 'OK (17 bytes)' else 'SUCCESS' }} " >> {{regression_result_path}}/{{ role_path|basename }}_result_1

@@ -5,6 +5,9 @@ This role check if OCP deploy app with ImageStream (no build)
 
 Requirements
 ------------
+The host that this role is executed should access to TEST application page(80,443 port)
+Default host is the ansible executed vm  and it can be changed with `remote_test_host` variable.
+
 
 Role Variables
 --------------

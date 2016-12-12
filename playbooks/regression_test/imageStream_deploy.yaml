@@ -1,7 +1,7 @@
 
 ---
  - include: ../common/master_config_facts.yaml
- - include: ../sample_app/hello_openshift.yaml
+# - include: ../sample_app/hello_openshift.yaml
 
  - name: Check if deploying application with ImageStream (no build)
    hosts: masters[0]
@@ -17,7 +17,7 @@
         pwd_path: "{{pwd.stdout}}"
 
    - name: Wait for deploying Hello Openshift application.
-     wait_for: host="{{hello_openshift_certs.hostname}}" port="443" state="started" delay="10"
+     wait_for: host="{{hello_openshift_certs.hostname}}" port="443" state="started" delay="1"
      delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
    roles:
