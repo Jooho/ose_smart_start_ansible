@@ -23,8 +23,17 @@
     dest: "{{regression_result_path}}/{{ role_path|basename }}_raw_1"
     force: yes
     validate_certs: no
-  delegate_to: localhost
+  register: curl_secure_eap
+  delegate_to: "{{ localhost if remote_test_host == ' ' else remote_test_host}}"
   ignore_errors: yes
+
+- name: Fetch raw data
+  fetch: src="{{regression_result_path}}/{{ role_path|basename }}_raw_1" dest="{{regression_result_path}}/{{ role_path|basename }}_raw_1" flat=yes
+  
+- name: If curl failed, save the reason to raq file
+  shell: echo "{{curl_secure_eap.response}}" >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
+  when: curl_secure_eap|failed
+  delegate_to: localhost
 
 - name: Check Page is loaded properly
   shell: echo "$(cat {{regression_result_path}}/{{ role_path|basename }}_raw_1 |grep -i 'Welcome to JBoss!'|uniq|wc -l)"
