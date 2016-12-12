@@ -21,10 +21,12 @@
   shell: "oc project {{project_name}}"
   ignore_errors: true
   register: test_project_exist
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Create test project if it does not exist
   shell: "oc new-project {{project_name}}"
   when: test_project_exist|failed
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Delete all objects for reset
   shell: "{{ item }}"
@@ -32,7 +34,8 @@
   ignore_errors: true
   with_items:
     - "oc delete template hello-openshift"
-    - "oc delete all -l app=hello-openshift-test"
+    - "oc delete all --all"
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Fetch master certificate files from remote.
   fetch: src="{{ item }}" dest="{{regression_result_path}}" 
@@ -56,8 +59,10 @@
   copy: src="{{item.src}}" dest="{{item.dest}}" force="yes"
   with_items:
     - { src: "hello_openshift_template.yaml" , dest: "{{regression_result_path}}" }
+    - { src: "{{fetch_path}}/ca.crt", dest: "{{regression_result_path}}" }
     - { src: "{{fetch_path}}/{{hello_openshift_certs.hostname}}.crt", dest: "{{regression_result_path}}" }
     - { src: "{{fetch_path}}/{{hello_openshift_certs.hostname}}.key", dest: "{{regression_result_path}}" }
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
   
 - name: Deploy hello-openshift application
   command: "{{ item }}"
@@ -65,7 +70,7 @@
     - "oc create -f {{regression_result_path}}/hello_openshift_template.yaml "
     - "oc new-app --template=hello-openshift -l app=hello-openshift-test"
     - "oc expose svc/hello-openshift --hostname=hello-openshift.{{osm_default_subdomain}}"
-    - "oc create route edge secure-hello-openshift --ca-cert={{ hello_openshift_certs.path }}/ca.crt --cert={{regression_result_path}}/{{hello_openshift_certs.hostname}}.crt --key={{regression_result_path}}/{{hello_openshift_certs.hostname}}.key --service=hello-openshift --hostname={{hello_openshift_certs.hostname}}"
+    - "oc create route edge secure-hello-openshift --ca-cert={{regression_result_path}}/ca.crt --cert={{regression_result_path}}/{{hello_openshift_certs.hostname}}.crt --key={{regression_result_path}}/{{hello_openshift_certs.hostname}}.key --service=hello-openshift --hostname={{hello_openshift_certs.hostname}}"
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Clean up test files

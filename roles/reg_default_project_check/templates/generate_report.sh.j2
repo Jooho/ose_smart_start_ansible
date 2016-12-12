@@ -1,21 +1,23 @@
 
-raw_filename={{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_raw_1
+raw_filename={{regression_result_path}}/{{ role_path|basename }}_raw_1
 result_filename={{regression_result_path}}/{{ role_path|basename }}_result_1
 
 
 export result="SUCCESS"
-while read -r line
+while read  line
 do
-    echo  $(echo $line|grep "NAME" |wc -l)
+    result="SUCCESS"
+    #echo  $(echo $line|grep "NAME" |wc -l)
     if [[ $(echo $line|grep "NAME" |wc -l) == 1  ]]
     then
       continue
     fi
 
+    result="SUCCESS"
     is_deployed=$(echo $line| cut -d" " -f2|cut -d"/" -f1)
     is_running=$(echo $line|cut -d" " -f3)
     restarted_count=$(echo $line|cut -d" " -f4)
-    echo $is_deployed $is_running $restarted_count
+    #echo $is_deployed $is_running $restarted_count
 
     if [[ $is_deployed -eq 0  ]]
     then
@@ -27,11 +29,11 @@ do
         result="FAIL"
     fi
 
-    if [ $(($restarted_count +0)) -gt 5 ] && [ $result -eq "SUCCESS" ]
+    if [[ $(($restarted_count + 1)) -gt 6 ]]  && [[ $result != "FAIL" ]]
     then
         result="WARN"
     fi
-    echo "$line $result"
+    #echo "$line $result"
     echo "$(echo $line|awk '{print $1 " " $2 " " $3 " " $4 " "}') $result" >> ${result_filename}
 
 done < $raw_filename

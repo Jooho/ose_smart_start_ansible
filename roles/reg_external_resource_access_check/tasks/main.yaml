@@ -17,25 +17,31 @@
 
 - name: Install NMAP for test
   package: name=nmap state=present use=yum
+  register: has_nmap_package
+  ignore_errors: yes
   become: yes
 
 - name: Check resource is accessible
   shell: nmap {{item.url }} -p {{ item.port }} -Pn |grep -A10 PORT|egrep -v 'PORT|Nmap' |sed '/^$/d'| awk '{print "{{inventory_hostname}} {{item.url}} " $1 " " $2}'
-  when: "{{item.port != ''}}"
+  when: "{{item.port != ''}} and {{has_nmap_package|success}}"
   with_items:
     - "{{ external_resources }}"
   register: nmap_result_raw
+
+- name: Add host where does not install nmap command
+  shell: echo "{{ inventory_hostname }} NMAP_command_is_not_installed FAIL" >> {{regression_result_path}}/{{role_path|basename}}_temp_1
+  when: has_nmap_package|failed
+  delegate_to: localhost
 
 - name: Generate result report
   shell: echo "{{item.stdout}}"  >> {{regression_result_path}}/{{ role_path|basename }}_temp_1
   with_items:
     - "{{ nmap_result_raw.results}}"
+  when: "{{not item|skipped}}"
   delegate_to: localhost
 
 - name: Generate result report
   shell: sort  {{regression_result_path}}/{{ role_path|basename }}_temp_1 -o {{regression_result_path}}/{{ role_path|basename }}_result_1 
-  with_items:
-    - "{{ nmap_result_raw.results}}"
   delegate_to: localhost
 
 - name: Remove NMAP for test

@@ -14,21 +14,30 @@
      - "{{ role_path|basename }}_result_1"
   delegate_to: localhost
 
-- name: Execute 'oc get node'
+- name: Execute 'oc login'
   shell: "{{ item }}"
   with_items:
     - "oc login -u '{{oc_login.user_id}}' -p '{{oc_login_password}}' --insecure-skip-tls-verify --server={{oc_login.url}}"
-    - "oc get pod -n default >  {{regression_result_path}}/{{ role_path|basename }}_raw_1"
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
+- name: Execute 'oc get node'
+  shell: "oc get pod -n default" 
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
+  register: oc_get_node_result
+
 - name: Check all pods status in default
-  fetch: src={{regression_result_path}}/{{ role_path|basename }}_raw_1  dest={{regression_result_path}}
+  copy: content={{oc_get_node_result.stdout}}  dest={{regression_result_path}}/{{ role_path|basename }}_raw_1
+  delegate_to: localhost
+
+- name: Cheat kit to give 1 more line to raw data
+  shell: echo " " >>{{regression_result_path}}/{{ role_path|basename }}_raw_1
+  delegate_to: localhost
 
 - name: Copy generate_report.sh file to {{regression_result_path}}
-  template: src=generate_report.sh.j2 dest={{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_generate_report.sh force=yes  mode=0777
+  template: src=generate_report.sh.j2 dest={{regression_result_path}}/{{ role_path|basename }}_generate_report.sh force=yes  mode=0777
   delegate_to: localhost
 
 - name: Generate result report for pod status
-  script: " {{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_generate_report.sh"
+  script: " {{regression_result_path}}/{{ role_path|basename }}_generate_report.sh"
   become: yes
   delegate_to: localhost
