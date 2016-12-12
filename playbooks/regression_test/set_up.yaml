@@ -1,0 +1,29 @@
+
+---
+ - include: ../common/master_config_facts.yaml
+ - name: Before start regression test, it will backup previous data and to be ready for go.
+   hosts: all
+   gather_facts: false
+   
+   pre_tasks:
+   - name: set concurrent path
+     local_action: command pwd
+     register: pwd
+
+   - name: set_facts - pwd_path
+     set_fact:
+        pwd_path: "{{pwd.stdout}}"
+  
+   tasks:
+   - name: Delete result folders       
+     file: path="{{regression_result_path}}" state=absent force=yes recurse=yes
+     ignore_errors: yes
+   
+   - name: Create result folder
+     file: path="{{regression_result_path}}" state=directory force=yes
+     ignore_errors: yes
+   
+   - name: Create result folder
+     local_action:  file path="{{regression_result_path}}" state=directory force=yes
+     ignore_errors: yes
+     

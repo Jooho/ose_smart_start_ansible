@@ -5,7 +5,7 @@ This role execute `oc get node` to check node status
 
 Requirements
 ------------
-The host that this role is executed can access OCP api server. Moreover, the oc user need at least `cluster-status` role. 
+The host that this role is executed can access OCP api server. Moreover, the oc user need at least `cluster-reader` role. 
 Default host is the first vm of masters and it can be changed with `remote_test_host` variable.
 
 

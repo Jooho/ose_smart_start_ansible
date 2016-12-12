@@ -15,19 +15,59 @@
      - "{{ role_path|basename }}_raw_1"
   delegate_to: localhost
 
+- name: Install "bind-utils"
+  package: name=bind-utils state=present use=yum
+  register: has_bind_package
+  ignore_errors: yes
+  become: yes
+
 - name: Execute dig command to check dns can resolve ip.
   shell: dig "{{ item }}" | grep 'ANSWER SECTION' | wc -l
   with_items:
      - "{{groups['all']| unique}}"
+  when: has_bind_package|success
   register: dig_result
+
+- name: Add host where does not install dig command
+  shell: echo "{{ inventory_hostname }} Dig_command_is_not_installed_FAIL" >> {{regression_result_path}}/{{role_path|basename}}_raw_1
+  when: has_bind_package|failed
+  delegate_to: localhost
+
+- debug: msg={{item}}
+  with_items:
+    - "{{dig_result.results}}"
+  when: "{{not item|skipped}}"
+  delegate_to: localhost
+
+- wait_for:
+    path:  "{{regression_result_path}}/{{role_path|basename}}_raw_1.lock"
+    state: absent
+    delay: 1
+    timeout: 5
+  ignore_errors: yes
+  delegate_to: localhost
+
+- name: Create lock file
+  file: path={{regression_result_path}}/{{role_path|basename}}_raw_1.lock state=touch
+  delegate_to: localhost
 
 - name: Generate test result
   shell: echo "{{ inventory_hostname }} {{ item.item }}  {{'FAIL' if item.stdout != '1' else 'SUCCESS' }}" >> {{regression_result_path}}/{{role_path|basename}}_raw_1
   with_items:
     - "{{dig_result.results}}"
+  when: "{{not item|skipped}}"
+  delegate_to: localhost
+
+- name: Remove lock file
+  file: path={{regression_result_path}}/{{role_path|basename}}_raw_1.lock state=touch
   delegate_to: localhost
 
 - name: Sort test result
-  run_once: true
   shell: cat {{regression_result_path}}/{{role_path|basename}}_raw_1 | sort > {{regression_result_path}}/{{role_path|basename}}_result_1
+  run_once: yes
   delegate_to: localhost
+
+- name: Remove "bind-utils"
+  package: name=bind-utils state=absent use=yum
+  when: has_bind_package|success
+  become: yes
