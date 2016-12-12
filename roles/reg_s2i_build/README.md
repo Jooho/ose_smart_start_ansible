@@ -5,7 +5,7 @@ This role check if s2i build/docker feature is working.
 
 Requirements
 ------------
-The host that this role is executed should access to EAP application page(443 port)
+The host that this role is executed should access to TEST application page(443 port)
 Default host is the ansible executed vm  and it can be changed with `remote_test_host` variable.
 
 Role Variables
