@@ -1,5 +1,9 @@
 usc/
 OCP_config_files/
-*.retry
 inventories/stg
 inventories/sbx
+inventories/pnp
+inventories/prod
+
+*.retry
+*.swp
