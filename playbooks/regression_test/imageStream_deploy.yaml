@@ -17,14 +17,21 @@
         pwd_path: "{{pwd.stdout}}"
 
    - name: Wait for deploying Hello Openshift application.
-     uri: url=https://{{hello_openshift_certs.hostname}} validate_certs=no return_content=yes status_code=200 timeout=300
+     uri: url=https://{{hello_openshift_certs.hostname}} validate_certs=no return_content=yes status_code=200 timeout=1
      register: deployed_test_app
      delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
      until: deployed_test_app.content.find("Hello OpenShift!") != -1
-     retries: 50
+     retries: 30
      delay: 10
+     ignore_errors: yes
 
    roles:
-    - { role: reg_imageStream_deploy  } 
+    - { role: reg_imageStream_deploy  , when: deployed_test_app|success} 
+
+   post_tasks:
+   - name: Generate result report
+     shell: echo Router_or_Deploying_Application_has_problems:FAIL  > {{regression_result_path}}/reg_imageStream_deploy_result_1
+     delegate_to: localhost
+     when: deployed_test_app|failed
 
 

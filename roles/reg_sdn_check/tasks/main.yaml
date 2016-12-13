@@ -48,42 +48,42 @@
   delegate_to: localhost
 
 - name: Execute Ping test for all
-  shell: ping -c 1 {{ item }}|grep "packets transmitted" |awk '{print "{{inventory_hostname}} {{item}} "   $6}'  
+  shell: ping -c 1 {{ item }}|grep "packets transmitted" |awk '{print "{{inventory_hostname}} {{item}} "   $6}'
   when: "{{ not firewall_between_master_node}}"
   with_items:
      - "{{ ping_target_list.stdout_lines}}"
   register: ping_test_result
 
 - name: Execute Ping test for masters
-  shell: ping -c 1 {{ item }}|grep "packets transmitted" |awk '{print "{{inventory_hostname}} {{item}} "   $6}'  
+  shell: ping -c 1 {{ item }}|grep "packets transmitted" |awk '{print "{{inventory_hostname}} {{item}} "   $6}'
   when: "{{firewall_between_master_node}} and {{inventory_hostname in groups.masters}}"
   with_items:
      - "{{ ping_target_master_list.stdout_lines}}"
   register: ping_test_master_result
 
 - name: Execute Ping test for nodes
-  shell: ping -c 1 {{ item }}|grep "packets transmitted" |awk '{print "{{inventory_hostname}} {{item}} "   $6}'  
+  shell: ping -c 1 {{ item }}|grep "packets transmitted" |awk '{print "{{inventory_hostname}} {{item}} "   $6}'
   when: "{{firewall_between_master_node}} and {{inventory_hostname in groups.nodes |difference(groups.masters)}}"
   with_items:
      - "{{ ping_target_node_list.stdout_lines}}"
   register: ping_test_node_result
 
 - name: Generate result report for all
-  shell: echo {{item.stdout}} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1
+  shell: echo {{item.stdout}}|awk '$3 == "0%" {print $1, $2, "SUCCESS"} $3 != "0%"  {print $1, $2, "FAIL"} ' >> {{regression_result_path}}/{{ role_path|basename }}_temp_1
   when: "{{ not firewall_between_master_node}}"
   delegate_to: localhost
   with_items:
      - "{{ping_test_result.results}}"
 
 - name: Generate result report for masters
-  shell: echo {{item.stdout}} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1
+  shell: echo {{item.stdout}} |awk '$3 == "0%" {print $1, $2, "SUCCESS"} $3 != "0%"  {print $1, $2, "FAIL"} ' >> {{regression_result_path}}/{{ role_path|basename }}_temp_1
   when: "{{firewall_between_master_node}} and {{inventory_hostname in groups.masters}}"
   delegate_to: localhost
   with_items:
      - "{{ping_test_master_result.results}}"
 
 - name: Generate result report for nodes
-  shell: echo {{item.stdout}} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1
+  shell: echo {{item.stdout}}|awk '$3 == "0%" {print $1, $2, "SUCCESS"} $3 != "0%"  {print $1, $2, "FAIL"} ' >> {{regression_result_path}}/{{ role_path|basename }}_temp_1
   when: "{{firewall_between_master_node}} and {{inventory_hostname in groups.nodes |difference(groups.masters)}} "
   delegate_to: localhost
   with_items:

@@ -18,22 +18,29 @@
      - "{{ role_path|basename }}_raw_1"
   delegate_to: localhost
 
-- name: docker login with external registry from master node
-  shell: "{{ item }}"
-  with_items:
-    - "oc login -u '{{oc_login.user_id}}' -p '{{oc_login_password}}' --insecure-skip-tls-verify --server={{oc_login.url}}"
-    - "docker login -u '{{internal_registry.user_id}}' -e {{internal_registry.email}} -p $(oc whoami -t) {{internal_registry.url}}"
+- name: oc login
+  shell: "oc login -u '{{oc_login.user_id}}' -p '{{oc_login_password}}' --insecure-skip-tls-verify --server={{oc_login.url}}"
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
+  ignore_errors: true
+  register: oc_login_internal_registry
+
+- name: docker login with internal registry from master node
+  shell: "docker login -u '{{internal_registry.user_id}}' -e {{internal_registry.email}} -p $(oc whoami -t) {{internal_registry.url}}"
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
+  ignore_errors: true
   register: docker_login
 
 - name: Check if regression test project exist
   shell: "oc project {{project_name}}"
   ignore_errors: true
+  when: oc_login_internal_registry|success and docker_login|success
   register: regression_project_exist
 
 - name: Create regression test project if it does not exist
   shell: "oc new-project {{project_name}}"
-  when: regression_project_exist|failed
+  ignore_errors: true
+  when: docker_login|success
+  when: regression_project_exist|failed and oc_login_internal_registry|success and docker_login|success
 
 - name: docker push test from master node
   shell: "{{ item }}"
@@ -53,24 +60,37 @@
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
   register: docker_pull_test
 
-- name: Generate result report - oc_login/docker_login
-  shell: echo "{{item[1]}}:{{'FAIL' if item[0].rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
+- name: Generate result report - oc_login
+  shell: echo "1_oc_login:{{'FAIL' if oc_login_internal_registry.rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
   delegate_to: localhost
-  with_nested:
-     - "{{ docker_login.results }}" 
-     - [ '1_oc_login', '2_docker_login' ]
+  run_once: yes
+
+- name: Generate result report - docker_login
+  shell: echo "2_docker_login:{{'FAIL' if docker_login.rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
+  delegate_to: localhost
+  run_once: yes
+
+- name: Generate result report - docker pull,tag,push busybox
+  shell: echo "{{item}}" >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
+  delegate_to: localhost
+  run_once: yes
+  when:  docker_login|failed
+  with_items:
+     - [ '3_docker_pull_from_docker_io:SUCCESS' , '4_docker_tag:SUCCESS' , '5_docker_push_to_internal:FAIL']
 
 - name: Generate result report - docker pull,tag,push busybox
   shell: echo "{{item[1]}}:{{'FAIL' if item[0].rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
   delegate_to: localhost
   run_once: yes
+  when:  oc_login_internal_registry|success and docker_login|success
   with_nested:
      - "{{ docker_push_test.results }}" 
      - [ '3_docker_pull_from_docker_io' , '4_docker_tag' , '5_docker_push_to_internal']
 
 - name: Generate result report - docker pull pushed image
-  shell: echo "6.docker_pull_from_internal:{{'FAIL' if item.rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
+  shell: echo "6_docker_pull_from_internal:{{'FAIL' if item.rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
   delegate_to: localhost
+  run_once: yes
   with_items:
      - "{{ docker_pull_test.results }}" 
 
@@ -83,13 +103,6 @@
      - "oc delete project {{project_name}}"
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
   register: clean_data
-
-- name: Generate result report - Clean up tested data
-  shell:  echo "{{item[1]}}:{{'FAIL' if item[0].rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
-  delegate_to: localhost
-  with_nested:
-     - "{{ clean_data.results }}"
-     - [ '7_remove_internal_image' , '8_remove_dockerio_image' , '9_remove_test_project']
 
 - name: Reformat result file
   shell: cat {{regression_result_path}}/{{ role_path|basename }}_raw_1|sort|uniq|tr '\n' ' ' >>  {{regression_result_path}}/{{ role_path|basename }}_result_1
