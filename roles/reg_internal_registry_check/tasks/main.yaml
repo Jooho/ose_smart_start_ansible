@@ -3,7 +3,7 @@
      project_name: "regression-test"
 
 - name: Delete test result File
-  file: path={{regression_result_path}}/{{ item }} state=absent force=yes mode=777
+  file: path={{regression_result_path}}/{{ item }} state=absent force=yes 
   run_once: true
   with_items:
      - "{{ role_path|basename }}_result_1"
