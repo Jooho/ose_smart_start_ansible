@@ -22,6 +22,7 @@
      delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
      until: deployed_test_app.content.find("Welcome to JBoss") != -1
      retries: 30
+     ignore_errors: yes
      delay: 10
 
    roles:

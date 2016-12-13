@@ -22,7 +22,7 @@
   become: yes
 
 - name: Check resource is accessible
-  shell: nmap {{item.url }} -p {{ item.port }} -Pn |grep -A10 PORT|egrep -v 'PORT|Nmap' |sed '/^$/d'| awk '{print "{{inventory_hostname}} {{item.url}} " $1 " " $2}'
+  shell: nmap {{item.url }} -p {{ item.port }} -Pn |grep -A10 PORT|egrep '^[0-9]' |sed '/^$/d'| awk '{print "{{inventory_hostname}} {{item.url}} " $1 " " $2}'
   when: "{{item.port != ''}} and {{has_nmap_package|success}}"
   with_items:
     - "{{ external_resources }}"
