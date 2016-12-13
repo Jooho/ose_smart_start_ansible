@@ -15,15 +15,18 @@
         pwd_path: "{{pwd.stdout}}"
   
    tasks:
-   - name: Delete result folders       
+   - name: Delete result folders for OCP clusters      
      file: path="{{regression_result_path}}" state=absent force=yes recurse=yes
      ignore_errors: yes
    
-   - name: Create result folder
-     file: path="{{regression_result_path}}" state=directory force=yes
+   - name: Create result folder for OCP clusters
+     file: path="{{regression_result_path}}" state=directory 
      ignore_errors: yes
    
-   - name: Create result folder
-     local_action:  file path="{{regression_result_path}}" state=directory force=yes
+   - name: Delete result folder for localhost
+     local_action: file path="{{regression_result_path}}" state=absent force=yes
      ignore_errors: yes
      
+   - name: Create result folder for localhost
+     local_action: file path="{{regression_result_path}}" state=directory 
+     ignore_errors: yes
