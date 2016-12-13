@@ -29,6 +29,7 @@
 
 - name: Fetch raw data
   fetch: src="{{regression_result_path}}/{{ role_path|basename }}_raw_1" dest="{{regression_result_path}}/{{ role_path|basename }}_raw_1" flat=yes
+  delegate_to: "{{ localhost if remote_test_host == ' ' else remote_test_host}}"
   
 - name: If curl failed, save the reason to raq file
   shell: echo "{{curl_secure_eap.response}}" >> {{regression_result_path}}/{{ role_path|basename }}_raw_1

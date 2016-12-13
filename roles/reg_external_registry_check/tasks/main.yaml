@@ -19,35 +19,63 @@
      - "{{ role_path|basename }}_temp_2"
   delegate_to: localhost
 
-- name: docker login with external registry
+- name: docker login with external registry for all hosts
   shell: docker login -u '{{external_registry.user_id}}' -e {{external_registry.email}} -p '{{external_registry_password}}' {{external_registry.url}}
-  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
-  register: docker_login
+  when: "{{master_is_schedulable}}"
+  register: docker_login_on_all
   ignore_errors: true
 
-- name: docker pull test
+- name: docker login with external registry for nodes
+  shell: docker login -u '{{external_registry.user_id}}' -e {{external_registry.email}} -p '{{external_registry_password}}' {{external_registry.url}}
+  when: "{{not master_is_schedulable}} and {{inventory_hostname in groups.nodes |difference(groups.masters)}} "
+  register: docker_login_on_node
+  ignore_errors: true
+
+- name: docker pull test for all hosts
   shell: docker pull {{external_registry.url}}/openshift/hello-openshift
   ignore_errors: true
-  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
-  with_items:
-     - "{{ docker_login }}"
-  register: docker_pull_test
+  when: "{{master_is_schedulable}}"
+  register: docker_pull_test_on_all
 
-- name: Generate docker login result report
+- name: docker pull test for nodes
+  shell: docker pull {{external_registry.url}}/openshift/hello-openshift
+  ignore_errors: true
+  when: "{{not master_is_schedulable}} and {{inventory_hostname in groups.nodes |difference(groups.masters)}} "
+  register: docker_pull_test_on_node
+
+- name: Generate docker login result report for all hosts
   shell: echo {{inventory_hostname}} docker_login:{{'FAIL' if item.rc != 0 else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1 
+  when: "{{master_is_schedulable}} and {{item.skipped is not defined}}"
   ignore_errors: true
   with_items:
-     - "{{ docker_login }}"
+     - "{{ docker_login_on_all }}"
+  delegate_to: localhost
+
+- name: Generate docker login result report for nodes
+  shell: echo {{inventory_hostname}} docker_login:{{'FAIL' if item.rc != 0 else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1 
+  when: "{{not master_is_schedulable}} and {{item.skipped is not defined}}"
+  ignore_errors: true
+  with_items:
+     - "{{ docker_login_on_node }}"
   delegate_to: localhost
 
 - name: Sort docker login result report
   shell: sort {{regression_result_path}}/{{ role_path|basename }}_temp_1 -o  {{regression_result_path}}/{{ role_path|basename }}_result_1
   delegate_to: localhost
 
-- name: Generate docker pull image result report
+- name: Generate docker pull image result report for all hosts
   shell: echo {{inventory_hostname}} docker_pull:{{'FAIL' if item.rc != 0 else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_temp_2 
+  when: "{{master_is_schedulable}} and {{item.skipped is not defined}}"
   with_items:
-     - "{{ docker_pull_test.results }}"
+     - "{{ docker_pull_test_on_all }}"
+  ignore_errors: true
+  delegate_to: localhost
+
+- name: Generate docker pull image result report for nodes
+  shell: echo {{inventory_hostname}} docker_pull:{{'FAIL' if item.rc != 0 else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_temp_2 
+  when: "{{not master_is_schedulable}} and {{item.skipped is not defined}}"
+  with_items:
+     - "{{ docker_pull_test_on_node }}"
   ignore_errors: true
   delegate_to: localhost
 

@@ -21,14 +21,17 @@
   shell: "oc project {{project_name}}"
   ignore_errors: true
   register: test_project_exist
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Create test project if it does not exist
   shell: " oc new-project {{project_name}} "
   when: test_project_exist|failed
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Delete EAP secret and sa
   shell: " {{ item }} "
   when: test_project_exist|success
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
   ignore_errors: true
   with_items:
     - " oc delete secret eap-app-secret"
@@ -48,7 +51,8 @@
   copy: src="{{item.src}}" dest="{{item.dest}}" force="yes"
   with_items:
       - { src: "eap-service-account.yaml" , dest: "{{regression_result_path}}/{{ role_path|basename }}_eap-service-account.yaml"}
-      - { src: "{{regression_result_path}}/keystore.jks", dest: "{{regression_result_path}}/{{ role_path|basename }}_keystore.jks" }
+      - { src: "{{regression_result_path}}/keystore.jks", dest: "{{regression_result_path}}/keystore.jks" }
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Create secret/sa
   command: "{{ item }}"
@@ -57,10 +61,12 @@
   with_items:
      - "oc secrets new eap-app-secret {{regression_result_path}}/keystore.jks"
      - "oc create -f {{regression_result_path}}/{{ role_path|basename }}_eap-service-account.yaml"
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Deploy eap application
   command: "oc new-app --template=eap64-https-s2i -p HTTPS_NAME=selfsigned,HTTPS_PASSWORD=supersecret,HOSTNAME_HTTPS=secure-eap-app-test.{{osm_default_subdomain}},HOSTNAME_HTTP=eap-app-test.{{osm_default_subdomain}} -l app=eap-app-test"
   register: deploy_eap_app
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Delete test result File
   file: path={{regression_result_path}}/{{ item }} state=absent force=yes

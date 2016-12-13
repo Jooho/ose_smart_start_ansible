@@ -21,6 +21,7 @@ From this role:
 | external_registry.url   | NONE                                          | External registry login url                                                 |
 | external_registry_password  | NONE                                      | External registry login password(NOTE: variable name format different       |
 | remote_test_host        | ' '                                           | Test host can be changed due to firewall rule                               |
+| master_is_schedulable   | no                                            | Set yes, if master vms are scheduable                                       |
 
 It is not recommaneded to save "external_registry_password" in group_var so please use extra_vars.
 remote_test_host can be configured when ansible host can not reach to oc api server due to firewall rule.
