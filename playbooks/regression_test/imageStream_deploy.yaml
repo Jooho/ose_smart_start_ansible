@@ -17,8 +17,12 @@
         pwd_path: "{{pwd.stdout}}"
 
    - name: Wait for deploying Hello Openshift application.
-     wait_for: host="{{hello_openshift_certs.hostname}}" port="443" state="started" delay="60"
+     uri: url=https://{{hello_openshift_certs.hostname}} validate_certs=no return_content=yes status_code=200 timeout=300
+     register: deployed_test_app
      delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
+     until: deployed_test_app.content.find("Hello OpenShift!") != -1
+     retries: 50
+     delay: 10
 
    roles:
     - { role: reg_imageStream_deploy  } 

@@ -16,6 +16,7 @@
 
 - name: Execute 'df command'
   shell: "df -h > {{regression_result_path}}/{{ role_path|basename }}_raw_1"
+  ignore_errors: yes
 
 - name: Execute 'lvs command'
   shell:  "lvs  |grep docker-pool |awk '{print \"lvm 0 0 0 \" int($5 + $6) \"% \" $1} '  >>  {{regression_result_path}}/{{ role_path|basename }}_raw_1 "

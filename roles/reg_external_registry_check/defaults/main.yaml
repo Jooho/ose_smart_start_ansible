@@ -1,2 +1,3 @@
 ---
 remote_test_host: ''
+master_is_schedulable: no
