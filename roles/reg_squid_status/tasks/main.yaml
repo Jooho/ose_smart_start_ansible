@@ -54,12 +54,20 @@
   delegate_to: localhost
 
 - name: Filter result data for svc
-  shell: echo squid-svc $(echo {{does_squid_svc_exist.stdout}}|awk '{print $2}') {{'FAIL' if does_squid_svc_exist.stdout == '' else 'SUCCESS'}}   >> {{regression_result_path}}/{{role_path|basename}}_result_1
+  shell: echo squid-svc $(echo {{does_squid_svc_exist.stdout}}|awk '{print $2}') {{'FAIL' if does_squid_svc_exist.stdout == '' else 'SUCCESS'}}   >> {{item}}
+  with_items: 
+     -  "{{regression_result_path}}/{{role_path|basename}}_raw_1"
+     -  "{{regression_result_path}}/{{role_path|basename}}_result_1"
   run_once: true
   delegate_to: localhost
 
-- name: Filter result data for ep
-  shell: echo squid-endpoint  $(echo {{does_squid_ep_exist.stdout}}|awk '{print $2}') {{'FAIL' if does_squid_ep_exist.stdout == '' else 'SUCCESS'}}   >> {{regression_result_path}}/{{role_path|basename}}_result_1 
+- name: Filter result data for ep to raw
+  shell: echo "squid-endpoint  $(echo {{does_squid_ep_exist.stdout}}|awk '{print $2}') {{'FAIL' if does_squid_ep_exist.stdout == '' else 'SUCCESS'}}"   >> {{regression_result_path}}/{{role_path|basename}}_raw_1
+  run_once: true
+  delegate_to: localhost
+
+- name: Filter result data for ep to result
+  shell: echo squid-endpoint  {{'FAIL' if does_squid_ep_exist.stdout == '' else 'SUCCESS'}}   >> {{regression_result_path}}/{{role_path|basename}}_result_1  
   run_once: true
   delegate_to: localhost
 

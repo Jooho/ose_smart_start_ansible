@@ -18,7 +18,7 @@ result_item_list=[]
 #final_result_data=[]
 
 # Open a file
-path = '/tmp/sbx'
+path = '/tmp/stg'
 dirs = os.listdir( path )
 
 role_name=""
@@ -121,9 +121,10 @@ for role in role_list:
       #combined_data_start_index = len(result_item)/len(role_result_dict)
       #combined_data_increase_size = combined_data_start_index + 1
 
-     #print role_rule_result_file_col_order
-     #print role_result_dict 
-     
+      #print role_rule_result_file_col_order
+      #print role_result_dict 
+      #print role
+      #print role_result_dict[0]
      ## Column count from result file have to be same as coloumn order item count from rule
       if len(role_result_dict[0]) != len(role_rule_result_file_col_order):
         print "role(%s) rule colmn count(%d) is different from real result count(%d)" % (role,   len(role_rule_result_file_col_order), len(role_result_dict[0]))

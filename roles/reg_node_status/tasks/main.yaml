@@ -23,6 +23,7 @@
 
 - name: Fetch raw result file
   fetch: src={{regression_result_path}}/{{ role_path|basename }}_raw_1 dest={{regression_result_path}}
+  delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Filter result data
   shell: "cat {{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_raw_1|grep -v NAME|awk 'NF{NF--};1' > {{regression_result_path}}/{{role_path|basename}}_result_1"

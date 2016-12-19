@@ -5,6 +5,7 @@
   with_items:
      - "{{ role_path|basename }}_result_1"
      - "{{ role_path|basename }}_temp_1"
+     - "{{ role_path|basename }}_raw_1"
   delegate_to: localhost
 
 - name: Create test result File
@@ -13,6 +14,7 @@
   with_items:
      - "{{ role_path|basename }}_result_1"
      - "{{ role_path|basename }}_temp_1"
+     - "{{ role_path|basename }}_raw_1"
   delegate_to: localhost
 
 - name: Install NMAP for test
@@ -29,19 +31,30 @@
   register: nmap_result_raw
 
 - name: Add host where does not install nmap command
-  shell: echo "{{ inventory_hostname }} NMAP_command_is_not_installed FAIL" >> {{regression_result_path}}/{{role_path|basename}}_temp_1
+  shell: echo "{{ inventory_hostname }} None None FAIL NMAP_command_is_not_installed" >> {{regression_result_path}}/{{role_path|basename}}_raw_1
+  when: has_nmap_package|failed
+  delegate_to: localhost
+
+- name: Add host where does not install nmap command
+  shell: echo "{{ inventory_hostname }} None None FAIL" >> {{regression_result_path}}/{{role_path|basename}}_temp_1
   when: has_nmap_package|failed
   delegate_to: localhost
 
 - name: Generate result report
-  shell: echo "{{item.stdout}}"  >> {{regression_result_path}}/{{ role_path|basename }}_temp_1
+  shell: sort  {{regression_result_path}}/{{ role_path|basename }}_temp_1 -o {{regression_result_path}}/{{ role_path|basename }}_result_1 
+  when: has_nmap_package|failed
+  delegate_to: localhost
+
+- name: Generate result report
+  shell: echo "{{item.stdout}}"  >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
   with_items:
     - "{{ nmap_result_raw.results}}"
   when: "{{not item|skipped}}"
   delegate_to: localhost
 
 - name: Generate result report
-  shell: sort  {{regression_result_path}}/{{ role_path|basename }}_temp_1 -o {{regression_result_path}}/{{ role_path|basename }}_result_1 
+  shell: sort  {{regression_result_path}}/{{ role_path|basename }}_raw_1 -o {{regression_result_path}}/{{ role_path|basename }}_result_1 
+  when: has_nmap_package|success
   delegate_to: localhost
 
 - name: Remove NMAP for test
