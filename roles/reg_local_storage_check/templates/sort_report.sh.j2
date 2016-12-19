@@ -11,13 +11,13 @@ do
     
     if [ $percentage -eq 100  ]
     then
-      echo $line |awk '{print "{{inventory_hostname}} " $6 " FAIL:" $5}' >> ${result_filename}_temp
+      echo $line |awk '{print "{{inventory_hostname}} " $6 " " $5 " FAIL" }' >> ${result_filename}_temp
     elif [ $percentage -lt 99 ] && [ $percentage -gt 80 ]
     then
-      echo $line |awk '{print "{{inventory_hostname}} " $6 " WARN:" $5}'  >> ${result_filename}_temp
+      echo $line |awk '{print "{{inventory_hostname}} " $6 " " $5 " WARN" }'  >> ${result_filename}_temp
     elif [ $percentage -lt 79 ] && [ $percentage -gt 70 ]
     then
-      echo $line |awk '{print "{{inventory_hostname}} " $6 " INFO:" $5}'  >> ${result_filename}_temp
+      echo $line |awk '{print "{{inventory_hostname}} " $6 " " $5 " INFO" }'  >> ${result_filename}_temp
     fi
 done < $raw_sort_filename
 

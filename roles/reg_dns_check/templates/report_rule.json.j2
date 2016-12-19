@@ -1,0 +1,43 @@
+{
+  "title": "DNS Check - OCP hostname",
+  "col_list": [
+    {
+      "name": "src_host",
+      "display": "HOST",
+      "desc": "This is the host that test DNS",
+      "type": "info"
+    },
+    {
+      "name": "target_host",
+      "display": "DNS ENTRY",
+      "desc": "This is the target host that should be resolved by DNS",
+      "type": "info"
+    },
+    {
+      "name": "result",
+      "display": "RESULT",
+      "desc": "Show DNS entries are properly resolved",
+      "type": "result"
+    }
+  ],
+  "result_files": {
+    "1": {
+      "col_order": [
+         "src_host",
+         "target_host",
+         "result"
+      ]
+    }
+  },
+  "result_type": {
+    "0": "SUCCESS",
+    "1": "FAIL"
+  },
+  "report": {
+      "col_order": [
+         "src_host",
+         "target_host",
+         "result"
+      ]
+    }
+}

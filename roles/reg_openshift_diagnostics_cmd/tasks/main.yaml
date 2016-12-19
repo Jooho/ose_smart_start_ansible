@@ -26,6 +26,8 @@
   register: openshift_ex_diagnostics_result
   delegate_to: localhost
 
-
+- name: Generate report rule
+  template: src=report_rule.json.j2 dest={{regression_result_path}}/{{ role_path|basename }}_rule
+  delegate_to: localhost
 
 

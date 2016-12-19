@@ -64,9 +64,13 @@
   delegate_to: localhost
 
 - name: Generate result report  
-  shell: echo -n "{{item.test_name}}:{{'FAIL' if item.test_result.msg != 'OK (17 bytes)' else 'SUCCESS' }} " >> {{regression_result_path}}/{{ role_path|basename }}_result_1
+  shell: echo -n "{{'FAIL' if item.msg != 'OK (17 bytes)' else 'SUCCESS' }} " >> {{regression_result_path}}/{{ role_path|basename }}_result_1
   delegate_to: localhost
   with_items:
-    - { test_name: 'ssl_test', test_result: "{{ssl_result}}"}
-    - { test_name: 'non_ssl_test', test_result: "{{non_ssl_result}}"}
+    - "{{ssl_result}}"
+    - "{{non_ssl_result}}"
+
+- name: Generate report rule
+  template: src=report_rule.json.j2 dest={{regression_result_path}}/{{ role_path|basename }}_rule
+  delegate_to: localhost
 

@@ -29,8 +29,12 @@
     - { role: reg_s2i_build, when: deployed_test_app|success } 
 
    post_tasks:
-   - name: Generate result report
-     shell: echo Router_or_Deploying_Application_has_problems:FAIL  > {{regression_result_path}}/reg_s2i_build_result_1
+   - name: Generate raw data
+     shell: echo Router_or_Deploying_Application_has_problems:FAIL  > {{regression_result_path}}/reg_s2i_build_raw_1
      delegate_to: localhost
      when: deployed_test_app|failed
  
+   - name: Generate result report
+     shell: echo FAIL  > {{regression_result_path}}/reg_s2i_build_result_1
+     delegate_to: localhost
+     when: deployed_test_app|failed

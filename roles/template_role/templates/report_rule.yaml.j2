@@ -1,0 +1,26 @@
+---
+title: This Role Title
+col_list:
+- name: first_colum_name #(NOTE: use '_',no space between words. internal used only)
+  display: column display name
+  desc: long description
+  type: info #( [info|result] info - informational data/ result - task result data )
+- name: second_colum_name #(NOTE: use '_',no space between words. internal used only)
+  display: column display name
+  desc: long description
+  type: info #( [info|result] info - informational data/ result - task result data )
+result_files:
+  '1':
+    col_order:
+    - first_colum_name
+  '2':
+    - second_colum_name
+result_type:
+  '0': SUCCESS
+  '1': FAIL
+  '2': WARN
+report:
+  column_order:  #(NOTE: This change the order of colums for report (To-Do)
+  - second_colum_name
+  - first_colum_name
+

@@ -1,0 +1,29 @@
+{
+  "title": "ImageStream Deploy Test (no build)",
+  "col_list": [
+    {
+      "name": "https_test",
+      "display": "TLS Connection",
+      "desc": "It establish TLS connection with hello openshift application",
+      "type": "result"
+    },
+    {
+      "name": "http_test",
+      "display": "TARGET HOST",
+      "desc": "It establish HTTP connection with hello openshift application",
+      "type": "result"
+    }
+  ],
+  "result_files": {
+    "1": {
+      "col_order": [
+          "https_test",
+          "http_test"
+      ]
+    }
+  },
+  "result_type": {
+    "SUCCESS": "SUCCESS",
+    "FAIL": "FAIL"
+  }
+}

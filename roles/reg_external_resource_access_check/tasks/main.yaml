@@ -47,3 +47,7 @@
 - name: Remove NMAP for test
   package: name=nmap state=absent use=yum
   become: yes
+
+- name: Generate report rule
+  template: src=report_rule.json.j2 dest={{regression_result_path}}/{{ role_path|basename }}_rule
+  delegate_to: localhost

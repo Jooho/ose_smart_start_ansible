@@ -34,7 +34,7 @@ do
         result="WARN"
     fi
     #echo "$line $result"
-    echo "$(echo $line|awk '{print $1 " " $2 " " $3 " " $4 " "}') $result" >> ${result_filename}
+    echo "$(echo $line|awk '{print $1 " " $3 " " $4 " "}') $result" >> ${result_filename}
 
 done < $raw_filename
 

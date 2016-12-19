@@ -61,34 +61,33 @@
   register: docker_pull_test
 
 - name: Generate result report - oc_login
-  shell: echo "1_oc_login:{{'FAIL' if oc_login_internal_registry.rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
+  shell: echo "{{'FAIL' if oc_login_internal_registry.rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
   delegate_to: localhost
   run_once: yes
 
 - name: Generate result report - docker_login
-  shell: echo "2_docker_login:{{'FAIL' if docker_login.rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
+  shell: echo "{{'FAIL' if docker_login.rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
   delegate_to: localhost
   run_once: yes
 
-- name: Generate result report - docker pull,tag,push busybox
+- name: Generate result report when docker login failed - docker pull,tag,push busybox
   shell: echo "{{item}}" >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
   delegate_to: localhost
   run_once: yes
   when:  docker_login|failed
   with_items:
-     - [ '3_docker_pull_from_docker_io:SUCCESS' , '4_docker_tag:SUCCESS' , '5_docker_push_to_internal:FAIL']
+     - [ 'SUCCESS' , 'SUCCESS' , 'FAIL']
 
 - name: Generate result report - docker pull,tag,push busybox
-  shell: echo "{{item[1]}}:{{'FAIL' if item[0].rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
+  shell: echo "{{'FAIL' if item.rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
   delegate_to: localhost
   run_once: yes
-  when:  oc_login_internal_registry|success and docker_login|success
-  with_nested:
+  when: oc_login_internal_registry|success and docker_login|success
+  with_items:
      - "{{ docker_push_test.results }}" 
-     - [ '3_docker_pull_from_docker_io' , '4_docker_tag' , '5_docker_push_to_internal']
 
 - name: Generate result report - docker pull pushed image
-  shell: echo "6_docker_pull_from_internal:{{'FAIL' if item.rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
+  shell: echo "{{'FAIL' if item.rc != 0 else 'SUCCESS'}} " >> {{regression_result_path}}/{{ role_path|basename }}_raw_1
   delegate_to: localhost
   run_once: yes
   with_items:
@@ -105,8 +104,9 @@
   register: clean_data
 
 - name: Reformat result file
-  shell: cat {{regression_result_path}}/{{ role_path|basename }}_raw_1|sort|uniq|tr '\n' ' ' >>  {{regression_result_path}}/{{ role_path|basename }}_result_1
+  shell: cat {{regression_result_path}}/{{ role_path|basename }}_raw_1|tr '\n' ' ' >>  {{regression_result_path}}/{{ role_path|basename }}_result_1
   delegate_to: localhost
 
-
-
+- name: Generate report rule
+  template: src=report_rule.json.j2 dest={{regression_result_path}}/{{ role_path|basename }}_rule
+  delegate_to: localhost

@@ -44,7 +44,7 @@
   register: docker_pull_test_on_node
 
 - name: Generate docker login result report for all hosts
-  shell: echo {{inventory_hostname}} docker_login:{{'FAIL' if item.rc != 0 else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1 
+  shell: echo {{inventory_hostname}} {{external_registry.url}} {{'FAIL' if item.rc != 0 else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1 
   when: "{{master_is_schedulable}} and {{item.skipped is not defined}}"
   ignore_errors: true
   with_items:
@@ -52,7 +52,7 @@
   delegate_to: localhost
 
 - name: Generate docker login result report for nodes
-  shell: echo {{inventory_hostname}} docker_login:{{'FAIL' if item.rc != 0 else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1 
+  shell: echo {{inventory_hostname}} {{external_registry.url}} {{'FAIL' if item.rc != 0 else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_temp_1 
   when: "{{not master_is_schedulable}} and {{item.skipped is not defined}}"
   ignore_errors: true
   with_items:
@@ -64,7 +64,7 @@
   delegate_to: localhost
 
 - name: Generate docker pull image result report for all hosts
-  shell: echo {{inventory_hostname}} docker_pull:{{'FAIL' if item.rc != 0 else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_temp_2 
+  shell: echo {{inventory_hostname}} {{external_registry.url}} {{'FAIL' if item.rc != 0 else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_temp_2 
   when: "{{master_is_schedulable}} and {{item.skipped is not defined}}"
   with_items:
      - "{{ docker_pull_test_on_all }}"
@@ -72,7 +72,7 @@
   delegate_to: localhost
 
 - name: Generate docker pull image result report for nodes
-  shell: echo {{inventory_hostname}} docker_pull:{{'FAIL' if item.rc != 0 else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_temp_2 
+  shell: echo {{inventory_hostname}} {{external_registry.url}} {{'FAIL' if item.rc != 0 else 'SUCCESS' }} >> {{regression_result_path}}/{{ role_path|basename }}_temp_2 
   when: "{{not master_is_schedulable}} and {{item.skipped is not defined}}"
   with_items:
      - "{{ docker_pull_test_on_node }}"
@@ -82,3 +82,8 @@
 - name: Sort docker pull image result report
   shell: sort {{regression_result_path}}/{{ role_path|basename }}_temp_2 -o  {{regression_result_path}}/{{ role_path|basename }}_result_2
   delegate_to: localhost
+
+- name: Generate report rule
+  template: src=report_rule.json.j2 dest={{regression_result_path}}/{{ role_path|basename }}_rule
+  delegate_to: localhost
+

@@ -1,0 +1,57 @@
+{
+  "title": "External Docker Registry Test",
+  "col_list": [
+    {
+      "name": "test_host",
+      "display": "HOST",
+      "desc": "This is host to test",
+      "type": "info"
+    },
+    {
+      "name": "external_docker_registry_url",
+      "display": "REGISTRY URL",
+      "desc": "This is external docker registry_url",
+      "type": "info"
+    },
+    {
+      "name": "docker_login_result",
+      "display": "Docker Login Result",
+      "desc": "Show the docker login result",
+      "type": "result"
+    },
+    {
+      "name": "docker_pull_result",
+      "display": "Docker Pull Result",
+      "desc": "Show the docker pull result",
+      "type": "result"
+    }
+  ],
+  "result_files": {
+    "1": {
+      "col_order": [
+        "test_host",
+        "external_docker_registry_url",
+        "docker_login_result"
+      ]
+    },
+    "2": {
+      "col_order": [
+        "test_host",
+        "external_docker_registry_url",
+        "docker_pull_result"
+      ]
+    }
+  },
+  "result_type": {
+    "0": "SUCCESS",
+    "1": "FAIL"
+  },
+  "report": {
+      "col_order": [
+        "test_host",
+        "external_docker_registry_url",
+        "docker_login_result",
+        "docker_pull_result"
+      ]
+    }
+}

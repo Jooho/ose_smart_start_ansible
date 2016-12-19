@@ -1,0 +1,52 @@
+{
+  "title": "Check runnig pods status in default project",
+  "col_list": [
+    {
+      "name": "pod_name",
+      "display": "POD NAME",
+      "desc": "This is pod name running in default project",
+      "type": "info"
+    },
+    {
+      "name": "pod_status",
+      "display": "POD STATUS",
+      "desc": "This is pod status ",
+      "type": "info"
+    },
+    {
+      "name": "pod_restart_count",
+      "display": "RESTART",
+      "desc": "This is pod restart count value ",
+      "type": "info"
+    },
+    {
+      "name": "result",
+      "display": "RESULT",
+      "desc": "This is pod status ",
+      "type": "result"
+    }
+  ],
+  "result_files": {
+    "1": {
+      "col_order": [
+        "pod_name",
+        "pod_status",
+        "pod_restart_count",
+        "result"
+      ]
+    }
+  },
+  "result_type": {
+    "0": "SUCCESS",
+    "1": "FAIL",
+    "2": "WARN"
+  },
+  "report": {
+      "col_order": [
+        "pod_name",
+        "pod_status",
+        "pod_restart_count",
+        "result"
+      ]
+    }
+}

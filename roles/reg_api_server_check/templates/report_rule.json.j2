@@ -1,0 +1,35 @@
+{
+  "title": "OpenShift Container Platform API Server Health Check Test",
+  "col_list": [
+    {
+      "name": "api_server",
+      "display": "API Server",
+      "desc": "This is api server hostname",
+      "type": "info"
+    },
+    {
+      "name": "health_check_result",
+      "display": "Result",
+      "desc": "Show the result of curl command",
+      "type": "result"
+    }
+  ],
+  "result_files": {
+    "1": {
+      "col_order": [
+        "api_server",
+        "health_check_result"
+      ]
+    }
+  },
+  "result_type": {
+    "0": "SUCCESS",
+    "1": "FAIL"
+  },
+  "report": {
+      "col_order": [
+        "api_server",
+        "health_check_result"
+      ]
+    }
+}

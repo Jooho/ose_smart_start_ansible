@@ -28,6 +28,8 @@
   shell: "cat {{regression_result_path}}/{{inventory_hostname}}/{{regression_result_path}}/{{ role_path|basename }}_raw_1|grep -v NAME|awk 'NF{NF--};1' > {{regression_result_path}}/{{role_path|basename}}_result_1"
   delegate_to: localhost
 
-
+- name: Generate report rule
+  template: src=report_rule.json.j2 dest={{regression_result_path}}/{{ role_path|basename }}_rule
+  delegate_to: localhost
 
 

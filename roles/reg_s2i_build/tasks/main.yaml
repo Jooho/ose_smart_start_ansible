@@ -42,7 +42,7 @@
   delegate_to: localhost
 
 - name: Generate result report 
-  shell: echo "s2i_build:{{'FAIL' if item.stdout != '1' else 'SUCCESS' }}" >> {{regression_result_path}}/{{ role_path|basename }}_result_1
+  shell: echo "{{'FAIL' if item.stdout != '1' else 'SUCCESS' }}" >> {{regression_result_path}}/{{ role_path|basename }}_result_1
   with_items:
      - "{{ eap_ssl_result }}"
   delegate_to: localhost
