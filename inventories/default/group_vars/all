@@ -1,0 +1,15 @@
+regression_result_path: "/tmp/example"
+squid_vms:
+  - master1.example.com
+
+firewall_between_master_node: yes
+external_registry: {user_id: "test", email: "test@gmail.com", url: "external.docker-registry.com:5000"}
+internal_registry: {user_id: "OpenShiftAdmin", email: "test@gmail.com", url: "registry.cloudapps.example.com"}
+oc_login: {user_id: "OpenShiftAdmin", url: "https://master1.example.com:8443"}
+
+external_resources:
+  - { url: "github.com", proxy: "", port: "443" }
+  - { url: "external.docker-registry.com", proxy: "", port: "22,443,5000" }  
+
+hello_openshift_certs: { path: "/etc/origin/master", hostname: "secure-hello-openshift.cloudapps.example.com" }
+remote_test_host: 'node1.example.com'

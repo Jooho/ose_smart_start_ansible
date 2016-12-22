@@ -6,27 +6,41 @@
    gather_facts: false
    
    pre_tasks:
-   - name: set concurrent path
-     local_action: command pwd
-     register: pwd
+   - name: Get timestamp
+     local_action: command  date +"%Y%m%d_%H%M%S"
+     register: date
 
-   - name: set_facts - pwd_path
-     set_fact:
-        pwd_path: "{{pwd.stdout}}"
-  
    tasks:
-   - name: Delete result folders for OCP clusters      
-     file: path="{{regression_result_path}}" state=absent force=yes recurse=yes
-     ignore_errors: yes
-   
-   - name: Create result folder for OCP clusters
-     file: path="{{regression_result_path}}" state=directory 
-     ignore_errors: yes
-   
+   - name: Check if result folder exist
+     stat: path={{regression_result_path}} 
+     run_once: true
+     register: result_folder
+
+   - name: Create history directory
+     run_once: true
+     local_action: file path="{{regression_result_path}}_history/" state="directory"
+     when: "{{result_folder.stat.exists == True}}"
+
+   - name: Backup previous result directory
+     run_once: true
+     local_action: command cp -R "{{regression_result_path}}/" "{{regression_result_path}}_history/{{date.stdout}}/" 
+     when: "{{result_folder.stat.exists == True}}"
+
    - name: Delete result folder for localhost
+     run_once: true
      local_action: file path="{{regression_result_path}}" state=absent force=yes
      ignore_errors: yes
      
    - name: Create result folder for localhost
+     run_once: true
      local_action: file path="{{regression_result_path}}" state=directory 
      ignore_errors: yes
+
+   - name: Delete result folders on OCP clusters      
+     file: path="{{regression_result_path}}" state=absent force=yes recurse=yes
+     ignore_errors: yes
+   
+   - name: Create result folder on OCP clusters
+     file: path="{{regression_result_path}}" state=directory 
+     ignore_errors: yes
+   
