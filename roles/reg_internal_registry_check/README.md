@@ -5,7 +5,8 @@ This role check integrated docker regitstry - oc login/docker login/docker push/
 
 Requirements
 ------------
-The host that this role is executed need certs file for integrated docker regitstry under /etc/docker/certs.d/{{internal_registry.url }}
+The host where role is executed needs cert files for integrated docker regitstry under /etc/docker/certs.d/{{internal_registry.url }}
+
 Default host is the first vm of masters and it can be changed with `remote_test_host` variable.
 
 
