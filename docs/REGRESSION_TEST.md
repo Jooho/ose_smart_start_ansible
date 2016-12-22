@@ -34,7 +34,8 @@ Check Result Files:
    egrep -v  "SUCCESS|started| 0%|Ready|INFO|WARN|open|Warnings" /tmp/example/reg*result*
   ```
 
-#### Custom Regression Test ####
+## Custom Regression Test ##
+***
 1. Copy ansible hosts file to ose_smart_start_ansible/inventories/default/
   ```
 cp $YOUR_ANSIBLE_HOSTS_FILE ose_smart_start_ansible/inventories/default/.
@@ -69,19 +70,20 @@ oc_login: {user_id: "OpenShiftAdmin", url: "https://master1.example.com:8443"}
 # ansible-playbook -i ../inventories/default/$YOUR_ANSIBLE_HOSTS_FILE   --extra-vars external_registry_password='$JENIE_PASSWORD'  --extra-vars oc_login_password='$OpenShiftAdmin_PASSWORD'  -M ../library/  -vvv
   ```
 
-### Result ###
+## Result ##
+***
 All parameters are defined in group_vars
 Result Path : `{{ regression_result_path }}`
+
 Report Path : `{{ regression_report_path if regression_report_path is defined else regression_report_path }}`
+
 Report file : `{{ regression_report_path if regression_report_path is defined else regression_result_path }}/report.json`
 
-**Check if Regression Test Result:**
-*Option1. Command:*
- Execute this command `egrep -v "SUCCESS|started| 0%|Ready|INFO|WARN|open|Warnings $RESULT_FOLDER"`. Then if you see nothing, it means regression test success. 
-
-`egrep -v  "SUCCESS|started| 0%|Ready|INFO|WARN|open|Warnings" {{ regression_result_path }}/reg*result*`
-
+###Check if Regression Test Result:###
+####Option1. Command:####
+ Execute following command. Then if you see nothing, it means regression test success. 
+  ```
+egrep -v  "SUCCESS|started| 0%|Ready|INFO|WARN|open|Warnings" {{ regression_result_path }}/reg*result*
+  ```
   
-*Option2. Application:*
-
-
+####Option2. Application:####
