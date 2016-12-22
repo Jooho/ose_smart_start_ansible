@@ -37,7 +37,7 @@ def main():
                 type='str'),
             backup=dict(
                 required=False,
-                default=True,
+                default=False,
                 type='bool'),
             title=dict(
                 required=False,
