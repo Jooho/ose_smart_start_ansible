@@ -1,11 +1,12 @@
 ## Full Regression Test ##
 
-**Copy ansible hosts file to ose_smart_start_ansible/inventories/default/**
-```
+1. Copy ansible hosts file to ose_smart_start_ansible/inventories/default/
+  ```
 cp $YOUR_ANSIBLE_HOSTS_FILE ose_smart_start_ansible/inventories/default/.
-```
-** Update group_vars according to your environment **
-```
+  ```
+
+2. Update group_vars according to your environment. 
+  ```
 # vi ose_smart_start_ansible/blob/master/inventories/default/group_vars/all
 
 regression_result_path: "/tmp/example"
@@ -23,23 +24,24 @@ external_resources:
 
 hello_openshift_certs: { path: "/etc/origin/master", hostname: "secure-hello-openshift.cloudapps.example.com" }
 remote_test_host: 'node1.example.com'
-```
+  ```
 
-**Execute Ansible Playbook**
-```
+3. Execute Ansible Playbook
+  ```
 # cd ose_smart_start_ansible
 # ansible-playbook -i ../inventories/default/$YOUR_ANSIBLE_HOSTS_FILE   --extra-vars external_registry_password='$JENIE_PASSWORD'  --extra-vars oc_login_password='$OpenShiftAdmin_PASSWORD'  -M ../library/  -vvv
 Check Result Files:
    egrep -v  "SUCCESS|started| 0%|Ready|INFO|WARN|open|Warnings" /tmp/example/reg*result*
-```
+  ```
 
 #### Custom Regression Test ####
-**Copy ansible hosts file to ose_smart_start_ansible/inventories/default/**
-```
+1. Copy ansible hosts file to ose_smart_start_ansible/inventories/default/
+  ```
 cp $YOUR_ANSIBLE_HOSTS_FILE ose_smart_start_ansible/inventories/default/.
-```
-**Customize Regression Test Playbook (Choose only some regression roles)**
-```
+  ```
+  
+2. Customize Regression Test Playbook (Choose only some regression roles)
+  ```
 vi ose_smart_start_ansible/playbooks/regression.yaml
 
 # Regression Test Playbook
@@ -49,29 +51,37 @@ vi ose_smart_start_ansible/playbooks/regression.yaml
 
 ...
 ..
-```
-**Update group_vars for selected roles**
-```
+  ```
+      
+3. Update group_vars for selected roles
+  ```
 # vi ose_smart_start_ansible/blob/master/inventories/default/group_vars/all
 
 internal_registry: {user_id: "OpenShiftAdmin", email: "test@gmail.com", url: "registry.cloudapps.example.com"}
 oc_login: {user_id: "OpenShiftAdmin", url: "https://master1.example.com:8443"}
 
-```
-**Execute Ansible Playbook**
-```
+  ```
+  
+4. Excute Ansible Playbook
+
+  ```
 # cd ose_smart_start_ansible
 # ansible-playbook -i ../inventories/default/$YOUR_ANSIBLE_HOSTS_FILE   --extra-vars external_registry_password='$JENIE_PASSWORD'  --extra-vars oc_login_password='$OpenShiftAdmin_PASSWORD'  -M ../library/  -vvv
-```
+  ```
 
 ### Result ###
 All parameters are defined in group_vars
-Result Path : {{ regression_result_path }}
-Report Path : {{ regression_report_path if regression_report_path is defined else regression_report_path }}
-Report file : {{ regression_report_path if regression_report_path is defined else regression_report_path }}/report.json
+Result Path : `{{ regression_result_path }}`
+Report Path : `{{ regression_report_path if regression_report_path is defined else regression_report_path }}`
+Report file : `{{ regression_report_path if regression_report_path is defined else regression_result_path }}/report.json`
 
 **Check if Regression Test Result:**
-Command: egrep -v  "SUCCESS|started| 0%|Ready|INFO|WARN|open|Warnings" {{ regression_result_path }}/reg*result*
-Application:
+*Option1. Command:*
+ Execute this command `egrep -v "SUCCESS|started| 0%|Ready|INFO|WARN|open|Warnings $RESULT_FOLDER"`. Then if you see nothing, it means regression test success. 
+
+`egrep -v  "SUCCESS|started| 0%|Ready|INFO|WARN|open|Warnings" {{ regression_result_path }}/reg*result*`
+
+  
+*Option2. Application:*
 
 
