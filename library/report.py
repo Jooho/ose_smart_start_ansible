@@ -18,7 +18,8 @@ result_item_list=[]
 #final_result_data=[]
 
 # Open a file
-path = '/tmp/stg'
+path = '/tmp/sbx'
+#path = '/tmp/stg'
 dirs = os.listdir( path )
 
 role_name=""
@@ -135,13 +136,13 @@ for role in role_list:
 
 
     ##ROW
+      role_result = STRING_SUCCESS
       for result_row_num in range(0, len(role_result_dict)):
         result_item=[]
         for result_col_num in range(0, len(role_result_dict[result_row_num])):
           for col in  role_rule_col_list:
             result_each_key_value={}
             col_value=""
-            role_result = STRING_SUCCESS
             if col['name'] == role_rule_result_file_col_order[result_col_num]:
               if col['type'] == 'result':   #task_type check
                 if role_rule_result_type.has_key(role_result_dict[result_row_num][result_col_num]):
@@ -150,8 +151,6 @@ for role in role_list:
                   col_value = STRING_SUCCESS 
                 elif role_result_dict[result_row_num][result_col_num].lower() == STRING_FAIL.lower():
                   col_value = STRING_FAIL
-                  report_result = STRING_FAIL
-                  role_result = STRING_FAIL
                 elif role_result_dict[result_row_num][result_col_num].lower() == STRING_WARN.lower():
                   col_value = STRING_WARN
                 else:
@@ -160,6 +159,9 @@ for role in role_list:
               elif col['type'] == 'info':
                 col_value = role_result_dict[result_row_num][result_col_num]
 
+              if col_value.lower() ==  STRING_FAIL.lower():
+                role_result = STRING_FAIL
+                report_result = STRING_FAIL
               #check col_data is duplicated
               col_non_exist=True
               for col_data in final_col_data:
@@ -201,7 +203,7 @@ for role in role_list:
   final_role["col_data"] = list(final_col_data)
   final_role["result_data_list"]= final_result_data_list
   final_role_list.append(final_role)    
-
+  role_result = STRING_SUCCESS
 
 
 ######## Json formatting ##########

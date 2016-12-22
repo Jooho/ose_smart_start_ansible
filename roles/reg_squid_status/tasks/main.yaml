@@ -18,7 +18,7 @@
 - name: Check if squid service is runnig
   service: name=squid state=started
   register: is_squid_service_runnig
-  when: '"{{inventory_hostname}}" == "{{item}}"'
+  when: '"{{squid_vms is defined}} and {{inventory_hostname}}" == "{{item}}"'
   with_items:
      - "{{squid_vms|default(omit)}}"
 
@@ -26,11 +26,13 @@
   shell: "oc login -u '{{oc_login.user_id}}' -p '{{oc_login_password}}' --insecure-skip-tls-verify --server={{oc_login.url}}"
   run_once: yes
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
+  when: "{{squid_vms is defined}}"
 
 - name: Check if Service for squid
   shell: "oc get svc -n default|grep squid"
   run_once: true
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
+  when: "{{squid_vms is defined}}"
   register: does_squid_svc_exist
   ignore_errors: true
 
@@ -38,6 +40,7 @@
   shell: "oc get ep -n default|grep squid"
   run_once: true
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
+  when: "{{squid_vms is defined}}"
   register: does_squid_ep_exist
   ignore_errors: true
 
@@ -50,6 +53,7 @@
 
 - name: Sort result data for squid package
   shell: sort {{regression_result_path}}/{{role_path|basename}}_raw_1  -o {{regression_result_path}}/{{role_path|basename}}_result_1
+  when: "{{squid_vms is defined}}"
   run_once: true
   delegate_to: localhost
 
@@ -59,19 +63,28 @@
      -  "{{regression_result_path}}/{{role_path|basename}}_raw_1"
      -  "{{regression_result_path}}/{{role_path|basename}}_result_1"
   run_once: true
+  when: "{{squid_vms is defined}}"
   delegate_to: localhost
 
 - name: Filter result data for ep to raw
   shell: echo "squid-endpoint  $(echo {{does_squid_ep_exist.stdout}}|awk '{print $2}') {{'FAIL' if does_squid_ep_exist.stdout == '' else 'SUCCESS'}}"   >> {{regression_result_path}}/{{role_path|basename}}_raw_1
   run_once: true
+  when: "{{squid_vms is defined}}"
   delegate_to: localhost
 
 - name: Filter result data for ep to result
   shell: echo squid-endpoint  {{'FAIL' if does_squid_ep_exist.stdout == '' else 'SUCCESS'}}   >> {{regression_result_path}}/{{role_path|basename}}_result_1  
   run_once: true
+  when: "{{squid_vms is defined}}"
   delegate_to: localhost
 
+- name: Give informational result (there is no squid_vms variable in group_vars)
+  shell: echo 'SQUID_VMS_IS_UNDEFINED FAIL'   >> {{regression_result_path}}/{{role_path|basename}}_result_1  
+  run_once: true
+  when: "{{squid_vms is defined}}"
+  delegate_to: localhost
 - name: Generate report rule
   template: src=report_rule.json.j2 dest={{regression_result_path}}/{{ role_path|basename }}_rule
+  when: "{{squid_vms is defined}}"
   delegate_to: localhost
 
