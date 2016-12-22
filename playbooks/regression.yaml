@@ -25,4 +25,4 @@
 
      tasks:
       - name: generate report
-        report: "title='Regression Test for {{env | upper}}' report_path='/tmp/sbx' result_path='/tmp/sbx' "
+        report: "title='Regression Test for {{env | upper}}' report_path='{{regression_report_path if regression_report_path is defined else regression_result_path }}' result_path='{{ regression_result_path }}' "

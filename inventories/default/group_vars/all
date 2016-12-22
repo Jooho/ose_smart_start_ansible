@@ -1,4 +1,5 @@
 regression_result_path: "/tmp/example"
+regression_report_path: "/tmp/example"
 squid_vms:
   - master1.example.com
 
