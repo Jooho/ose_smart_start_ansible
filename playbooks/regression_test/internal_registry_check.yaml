@@ -4,7 +4,6 @@
  - name: Check internal registry via router - oc login/docker login/docker push/docker pull
    hosts: masters[0]
    gather_facts: false
-   become: true
    
    pre_tasks:
    - name: set concurrent path

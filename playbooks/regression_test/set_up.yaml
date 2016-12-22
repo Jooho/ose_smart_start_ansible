@@ -12,24 +12,26 @@
 
    tasks:
    - name: Check if result folder exist
-     stat: path={{regression_result_path}} 
+     stat: path={{regression_result_path}}/ 
      run_once: true
+     delegate_to: localhost
      register: result_folder
 
    - name: Create history directory
      run_once: true
      local_action: file path="{{regression_result_path}}_history/" state="directory"
-     when: "{{result_folder.stat.exists == True}}"
-
+     when: "{{result_folder.stat.exists == true}}"
+   
    - name: Backup previous result directory
      run_once: true
      local_action: command cp -R "{{regression_result_path}}/" "{{regression_result_path}}_history/{{date.stdout}}/" 
-     when: "{{result_folder.stat.exists == True}}"
+     when: "{{result_folder.stat.exists == true}}"
 
    - name: Delete result folder for localhost
      run_once: true
      local_action: file path="{{regression_result_path}}" state=absent force=yes
      ignore_errors: yes
+     when: "{{result_folder.stat.exists != true}}"
      
    - name: Create result folder for localhost
      run_once: true
@@ -37,7 +39,7 @@
      ignore_errors: yes
 
    - name: Delete result folders on OCP clusters      
-     file: path="{{regression_result_path}}" state=absent force=yes recurse=yes
+     file: path="{{regression_result_path}}" state=absent force=yes 
      ignore_errors: yes
    
    - name: Create result folder on OCP clusters
