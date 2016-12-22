@@ -35,7 +35,7 @@ Check Result Files:
   ```
 
 ## Custom Regression Test ##
-***
+
 1. Copy ansible hosts file to ose_smart_start_ansible/inventories/default/
   ```
 cp $YOUR_ANSIBLE_HOSTS_FILE ose_smart_start_ansible/inventories/default/.
@@ -71,7 +71,7 @@ oc_login: {user_id: "OpenShiftAdmin", url: "https://master1.example.com:8443"}
   ```
 
 ## Result ##
-***
+
 All parameters are defined in group_vars
 Result Path : `{{ regression_result_path }}`
 
