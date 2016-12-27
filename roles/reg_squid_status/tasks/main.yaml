@@ -18,9 +18,9 @@
 - name: Check if squid service is runnig
   service: name=squid state=started
   register: is_squid_service_runnig
-  when: '"{{squid_vms is defined}} and {{inventory_hostname}}" == "{{item}}"'
+  when: "{{squid_vms is defined}} and inventory_hostname == item "
   with_items:
-     - "{{squid_vms|default(omit)}}"
+     - "{{squid_vms}}"
 
 - name: oc login to OCP
   shell: "oc login -u '{{oc_login.user_id}}' -p '{{oc_login_password}}' --insecure-skip-tls-verify --server={{oc_login.url}}"
@@ -46,7 +46,7 @@
 
 - name: Filter result data for squid package
   shell: echo "{{item.item}} {{'FAIL' if item.state != 'started' else 'SUCCESS'}}" >>  {{regression_result_path}}/{{role_path|basename}}_raw_1
-  when: ({{item.skipped is not defined}})
+  when: "{{squid_vms is defined}} and item.skipped is not defined "
   with_items:
      - "{{is_squid_service_runnig.results}}"
   delegate_to: localhost
@@ -81,10 +81,11 @@
 - name: Give informational result (there is no squid_vms variable in group_vars)
   shell: echo 'SQUID_VMS_IS_UNDEFINED FAIL'   >> {{regression_result_path}}/{{role_path|basename}}_result_1  
   run_once: true
-  when: "{{squid_vms is defined}}"
+  when: "{{squid_vms is not defined}}"
   delegate_to: localhost
+
 - name: Generate report rule
   template: src=report_rule.json.j2 dest={{regression_result_path}}/{{ role_path|basename }}_rule
-  when: "{{squid_vms is defined}}"
+  run_once: true
   delegate_to: localhost
 

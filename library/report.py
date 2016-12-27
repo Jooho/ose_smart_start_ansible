@@ -18,7 +18,7 @@ result_item_list=[]
 #final_result_data=[]
 
 # Open a file
-path = '/tmp/sbx'
+path = '/tmp/pnp'
 dirs = os.listdir( path )
 
 role_name=""

@@ -2,12 +2,12 @@
 
 # Regression Test Playbook
 
-##   - include: ./regression_test/set_up.yaml
+#   - include: ./regression_test/set_up.yaml
 #   - include: ./regression_test/dns_check.yaml
 #   - include: ./regression_test/openshift_ex_diagnostic.yaml
 #   - include: ./regression_test/node_status.yaml
 #   - include: ./regression_test/local_storage_check.yaml
-#   - include: ./regression_test/squid_status.yaml
+   - include: ./regression_test/squid_status.yaml
 #   - include: ./regression_test/sdn_check.yaml
 #   - include: ./regression_test/api_server_check.yaml
 #   - include: ./regression_test/default_project_check.yaml
@@ -24,5 +24,9 @@
      gather_facts: false
 
      tasks:
+      - name: set_facts - pwd_path
+        set_fact:
+           env: "{{env|upper  if env is defined else 'OCP Cluster'}}"
+
       - name: generate report
-        report: "title='Regression Test for {{env | upper}}' report_path='{{regression_report_path if regression_report_path is defined else regression_result_path }}' result_path='{{ regression_result_path }}' "
+        report: "title='Regression Test for {{env}}' report_path='{{regression_report_path if regression_report_path is defined else regression_result_path }}' result_path='{{ regression_result_path }}' "
