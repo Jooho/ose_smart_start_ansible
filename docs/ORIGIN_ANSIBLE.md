@@ -23,10 +23,10 @@ $ npm start
 ##Screenshot##
 
 **1. Open Browser (Go to http://IP:8080)**
-![alt text][ansible_origin_first_page]
+![alt text][origin_ansible_first_page]
 
 **2. Click Data Menu and Put Report Data(report.json)**
-![alt text][origin_ansible_data_page.]
+![alt text][origin_ansible_data_page]
 
 **3. Click Report**
 ![alt text][origin_ansible_report_page]
