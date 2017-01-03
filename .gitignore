@@ -1,5 +1,6 @@
 usc/
 OCP_config_files/
+openshift-ansible/
 inventories/stg
 inventories/sbx
 inventories/pnp
