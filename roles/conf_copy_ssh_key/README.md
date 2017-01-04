@@ -15,7 +15,7 @@ From this role:
 | Name                        | Default value                                 | Description                                                                 |
 |-----------------------------|-----------------------------------------------|-----------------------------------------------------------------------------|
 | node_passwd                 | ''                                            | This ssh login password(id is ansible_user in hosts file)                   |
-|                             |                                               | It assume all nodes has same passwor                                        |
+|                             |                                               | It assume all nodes has same password                                        |
 
 NOTICE: node_passwd is sensitive information so it recommand to use extra-vars parameter.
 
@@ -38,8 +38,6 @@ Example Playbook
 
    roles:
     - { role: conf_copy_ssh_key }
-
-
 ```
 
 Example group_vars
