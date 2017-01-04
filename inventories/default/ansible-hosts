@@ -1,0 +1,60 @@
+# Create an OSEv3 group that contains the masters and nodes groups
+[OSEv3:children]
+masters
+nodes
+
+# Set variables common for all OSEv3 hosts
+[OSEv3:vars]
+# SSH user, this user should allow ssh based auth without requiring a password
+ansible_ssh_user=root
+
+# If ansible_ssh_user is not root, ansible_sudo must be set to true
+#ansible_sudo=true
+
+deployment_type=openshift-enterprise
+debug_level=2
+
+cli_docker_additional_registries=registry.access.redhat.com
+cli_docker_insecure_registries=172.30.0.0/16
+
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
+
+osm_default_subdomain=cloudapps.example.com
+
+osm_default_node_selector='region=app'
+
+openshift_router_selector='region=infra'
+openshift_registry_selector='region=infra'
+
+os_sdn_network_plugin_name='redhat/openshift-ovs-multitenant'
+
+logrotate_scripts=[{"name": "syslog", "path": "/var/log/cron\n/var/log/maillog\n/var/log/messages\n/var/log/secure\n/var/log/spooler\n", "options": ["daily", "rotate 7", "compress", "sharedscripts", "missingok"], "scripts": {"postrotate": "/bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true"}}]
+
+# uncomment the following to enable htpasswd authentication; defaults to DenyAllPasswordIdentityProvider
+#openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/htpasswd'}]
+
+# Native high availbility cluster method with optional load balancer.
+# If no lb group is defined installer assumes that a load balancer has
+# been preconfigured. For installation the value of
+# openshift_master_cluster_hostname must resolve to the load balancer
+# or to one or all of the masters defined in the inventory if no load
+# balancer is present.
+
+# override the default controller lease ttl
+#osm_controller_lease_ttl=30
+ 
+# host group for masters
+[masters]
+master1.example.com
+
+# host group for etcd
+ 
+# Specify load balancer host
+
+# host group for nodes, includes region info
+[nodes]
+master1.example.com  openshift_node_labels="{'region': 'infra', 'zone': 'default'}" openshift_schedulable=false
+node1.example.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
+node2.example.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
+ 
+
