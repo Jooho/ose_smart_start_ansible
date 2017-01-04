@@ -1,0 +1,23 @@
+---
+- name: Check if public exist(id_rsa.pub) 
+  stat: path="~/.ssh/id_rsa.pub" 
+  register: exist_public_key
+  delegate_to: localhost
+
+- name: If node_passwd is '', stop playbook
+  fail: msg=" {{node_passwd}} The node password has to be put - please add --extra-vars node_passwd='$password'"
+  when: "{{node_passwd == ' '}} "
+
+- name: Install sshpass package
+  package: name=sshpass state=present use=yum
+  delegate_to: localhost
+ 
+- name: If public key does not exist, it will be generated
+  shell: echo | ssh-keygen -b2048 -trsa -N ''
+  when: "{{exist_public_key.stat.exists == false}}"
+  delegate_to: localhost
+
+- name: Copy ssh-key to node 
+  shell: sshpass -p {{node_passwd}}  ssh-copy-id -i ~/.ssh/id_rsa.pub -o StrictHostKeyChecking=no "{{ansible_user}}@{{inventory_hostname}}"
+  delegate_to: localhost
+  

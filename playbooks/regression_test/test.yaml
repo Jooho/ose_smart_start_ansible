@@ -3,7 +3,7 @@
  - include: ../common/master_config_facts.yaml
 
  - name: Check if S2I build is working properly
-   hosts: masters[0]
+   hosts: minishift.example.com
    gather_facts: false
 
    pre_tasks:
@@ -17,6 +17,11 @@
         regression_result_path: "/tmp"
         role_path: reg_sdn_check
         master_list: "{{groups.masters}}"
+
+
+   roles:
+    - { role: conf_copy_ssh_key }
+
 #   - name: Execute "curl" command to get SSL page
 #     get_url: 
 #         url:  https://secure-hello-openshift.sbx.cloudapps.ao.dcn 
@@ -24,11 +29,11 @@
 #         validate_certs: no
 #     register: curl_result
 #
-   - name: Execute 'oc get hostsubnet'
-     shell: oc get hostsubnet
-     run_once: true
-     delegate_to: "{{groups.masters.0}}"
-     register: hostsubnet
+#   - name: Execute 'oc get hostsubnet'
+#     shell: oc get hostsubnet
+#     run_once: true
+#     delegate_to: "{{groups.masters.0}}"
+#     register: hostsubnet
   
  #- name: Fetch raw result file
  #  fetch: src={{regression_result_path}}/{{ role_path|basename }}_raw_1 dest={{regression_result_path}}
@@ -46,13 +51,13 @@
 #         - "{{groups.masters}}"
 
    
-   - shell: echo {{master_list}} |sed 's/,/|/g; s/\[u/''/g ; s/\]/''/g; s/| u/|/g'
-     register: master_list
+#   - shell: echo {{master_list}} |sed 's/,/|/g; s/\[u/''/g ; s/\]/''/g; s/| u/|/g'
+#     register: master_list
 
-   - name: List up ping target list from hostsubnet information
-     shell: cat {{regression_result_path}}/{{ role_path|basename }}_raw_1 |egrep -v "NAME|{{inventory_hostname}}|{{master_list.stdout}}"
-     when: "{{firewall_between_master_node}}"
-     register: ping_master_target_list
+#   - name: List up ping target list from hostsubnet information
+#     shell: cat {{regression_result_path}}/{{ role_path|basename }}_raw_1 |egrep -v "NAME|{{inventory_hostname}}|{{master_list.stdout}}"
+#     when: "{{firewall_between_master_node}}"
+#     register: ping_master_target_list
 #
      #shell: cat {{regression_result_path}}/{{ role_path|basename }}_raw_1 |egrep -v "NAME|{{inventory_hostname}}|{{groups.nodes}}}|awk '{print $4}'|sed 's/0\/24/1/g'
  

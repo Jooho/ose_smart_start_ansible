@@ -2,6 +2,7 @@
 [OSEv3:children]
 masters
 nodes
+test
 
 # Set variables common for all OSEv3 hosts
 [OSEv3:vars]
@@ -57,4 +58,5 @@ master1.example.com  openshift_node_labels="{'region': 'infra', 'zone': 'default
 node1.example.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
 node2.example.com openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
  
-
+[test]
+minishift.example.com 

@@ -1,0 +1,12 @@
+
+---
+ - include: ../common/master_config_facts.yaml
+
+ - name: Copy ssh key
+   hosts: minishift.example.com
+   gather_facts: false
+
+   roles:
+    - { role: conf_copy_ssh_key }
+
+
