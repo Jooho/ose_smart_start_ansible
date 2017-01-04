@@ -20,7 +20,7 @@
 
 
    roles:
-    - { role: conf_copy_ssh_key }
+    - { role: conf_pre_requisites }
 
 #   - name: Execute "curl" command to get SSL page
 #     get_url: 
