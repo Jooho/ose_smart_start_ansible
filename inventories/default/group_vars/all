@@ -6,7 +6,7 @@ squid_vms:
 firewall_between_master_node: yes
 external_registry: {user_id: "test", email: "test@gmail.com", url: "external.docker-registry.com:5000"}
 internal_registry: {user_id: "OpenShiftAdmin", email: "test@gmail.com", url: "registry.cloudapps.example.com"}
-oc_login: {user_id: "OpenShiftAdmin", url: "https://master1.example.com:8443"}
+oc_login: {user_id: "joe", url: "https://master1.example.com:8443"}
 
 external_resources:
   - { url: "github.com", proxy: "", port: "443" }
