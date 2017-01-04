@@ -25,14 +25,14 @@ Dependencies
 Example Execute Command
 -----------------------
 ```
-ansible-playbook  ./$ROLE_PLAYBOOK.yaml  -vvv  --extra-vars node_passwd='password'
+ansible-playbook  playbooks/config/copy_ssh_key.yaml --extra-vars node_passwd='password'
 ```
 
 Example Playbook
 ----------------
 
 ```
- - name: Playbook sample
+ - name: Copy SSH Key to Nodes
    hosts: all
    gather_facts: false
 
