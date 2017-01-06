@@ -1,0 +1,18 @@
+---
+yum_repolist:
+  - rhel-7-server-rpms
+  - rhel-7-server-satellite-tools-6.1-rpms
+  - rhel-7-server-extras-rpms
+  - rhel-7-server-ose-3.3-rpms
+
+essential_package_list:
+  - wget
+  - git
+  - net-tools
+  - bind-utils
+  - iptables-services
+  - bridge-utils
+  - bash-completion
+  - nfs-utils
+
+docker_version: "1.9.1"

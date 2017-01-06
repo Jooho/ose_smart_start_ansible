@@ -1,0 +1,12 @@
+
+---
+ - include: ../common/master_config_facts.yaml
+
+ - name: Pre requisites tasks 
+   hosts: all
+   gather_facts: false
+
+   roles:
+    - { role: conf_pre_requisites }
+
+

@@ -10,28 +10,24 @@
 #  redhat_subscription: state=present org_id={{satellite.org}} environment={{satellite.environment}} activationkey={{satellite.activationkey}} autosubscribe=true
 #  redhat_subscription: state=present org_id={{satellite.org}} environment={{satellite.environment}} username={{username}} password={{password}} autosubscribe=true 
 
-- name: Register Satellite
-  redhat_subscription: state=present  username='rhn-support-jlee' password='dlwnghABC!!22' 
+- name: Register rhn server
+  redhat_subscription: state=present  username='rhn-support-jlee' password='{{rhn_passwd}}' pool='^Employee SKU$'
+
+- name: Disable all repositories
+  shell: subscription-manager repos --disable="*" 
 
 - name: Manage Yum repositories for Openshift
-  yum_repository: enabled={{item.enable}} name={{item.name}}
+  shell: subscription-manager repos --enable {{item}}
   with_items:
-    - { name: "*", enable: "false" }
-    - { name: "rhel-7-server-rpms", enable: "true" }
-    - { name: "rhel-7-server-satellite-tools-6.1-rpms", enable: "true" }
-    - { name: "rhel-7-server-extras-rpms", enable: "true" }
-    - { name: "rhel-7-server-ose-3.2-rpms", enable: "true" }
+    - "{{ yum_repolist }}"
 
 - name: Install Essential Packages
   package: name={{ item }} state=present use=yum
   with_items:
-    - "wget"
-    - "git"
-    - "net-tools"
-    - "bind-utils" 
-    - "iptables-services"
-    - "bridge-utils"
-    - "bash-completion"
-    - "nfs-utils"
+    - "{{ essential_package_list }}"
 
-  
+- name: Install Docker 
+  package: name=docker-{{docker_version}} state=present use=yum
+ 
+- name: Enable and Start Docker
+  service: name=docker enabled=yes state=started
