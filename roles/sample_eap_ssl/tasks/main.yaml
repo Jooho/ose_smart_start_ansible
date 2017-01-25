@@ -7,8 +7,7 @@
   file: path={{tmp_path}}/{{ item }} state=absent force=yes
   run_once: true
   with_items:
-     - "{{ role_path|basename }}_eap_ssl.cnf"
-     - "keystore.jks"
+     - "{{ tmp_path}}/keystore.jks"
      - "{{ role_path|basename }}_eap-service-account.yaml"
   delegate_to: localhost
 
@@ -53,7 +52,6 @@
   copy: src="{{item.src}}" dest="{{item.dest}}" force="yes"
   with_items:
       - { src: "eap-service-account.yaml" , dest: "{{tmp_path}}/{{ role_path|basename }}_eap-service-account.yaml"}
-      - { src: "{{tmp_path}}/keystore.jks", dest: "{{tmp_path}}/keystore.jks" }
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Create secret/sa
@@ -74,8 +72,7 @@
   file: path={{tmp_path}}/{{ item }} state=absent force=yes
   run_once: true
   with_items:
-     - "{{ role_path|basename }}_eap_ssl.cnf"
-     - "keystore.jks"
+     - "{{ tmp_path}}/keystore.jks"
      - "{{ role_path|basename }}_eap-service-account.yaml"
   delegate_to: localhost
 
