@@ -1,4 +1,4 @@
-Regression Test - Sample Application - EAP SSL
+Sample Application - EAP SSL
 ============
 
 This role deploy eap ssl application which use self signed cert
@@ -13,7 +13,6 @@ From this role:
 
 | Name                        | Default value                                 | Description                                                                 |
 |-----------------------------|-----------------------------------------------|-----------------------------------------------------------------------------|
-| regression_result_path      | /tmp                                          | Regression Test result folder                                               |
 | oc_login.user_id            | NONE                                          | OCP login user id                                                           |
 | oc_login_password           | NONE                                          | OCP login password                                                          |
 | oc_login.url                | NONE                                          | OCP api server url                                                          |
