@@ -13,7 +13,7 @@ From this role:
 
 | Name                        | Default value                                 | Description                                                                 |
 |-----------------------------|-----------------------------------------------|-----------------------------------------------------------------------------|
-| regression_result_path      | /tmp                                          | Regression Test result folder                                               |
+| regression_result_path      | /tmp                                          | If it set, Regression Test result folder will be used to save files         |
 | oc_login.user_id            | NONE                                          | OCP login user id                                                           |
 | oc_login_password           | NONE                                          | OCP login password                                                          |
 | oc_login.url                | NONE                                          | OCP api server url                                                          |
@@ -29,7 +29,7 @@ Dependencies
 Example Execute Command
 -----------------------
 ```
-ansible-playbook  playbooks/sample_app/eap_ssl.yaml  --extra-vars oc_login_password='password' -vvvv
+ansible-playbook  playbooks/sample_app/eap_ssl.yaml   --extra-vars '{oc_login: {"url":"https://master1.example.com:8443", "user_id":"test"}}' --extra-vars oc_login_password='password' -vvvv
 ```
 
 Example Playbook

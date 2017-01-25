@@ -1,9 +1,10 @@
 ---
 - set_fact:
      project_name: "sample-eap-ssl"
+     tmp_path: "{{ regression_result_path if regression_result_path is defined else '/tmp' }}"
 
 - name: Delete test result File
-  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  file: path={{tmp_path}}/{{ item }} state=absent force=yes
   run_once: true
   with_items:
      - "{{ role_path|basename }}_eap_ssl.cnf"
@@ -11,6 +12,7 @@
      - "{{ role_path|basename }}_eap-service-account.yaml"
   delegate_to: localhost
 
+- debug: msg="{{oc_login.user_id}}"
 - name: Execute `oc login`
   shell: "{{ item }}"
   with_items:
@@ -39,28 +41,28 @@
     - " oc delete all -l app=eap-app-test"
 
 - name: Generate Self Sign Certs
-  command: keytool -genkey -keyalg RSA -alias selfsigned -keystore {{regression_result_path}}/keystore.jks -storepass supersecret -keypass supersecret -validity 360 -keysize 2048  -dname 'cn=secure-eap-app-test.{{osm_default_subdomain}}, ou=Consult, o=Red Hat, l=Toronto, st=Ontario c=CA'
+  command: keytool -genkey -keyalg RSA -alias selfsigned -keystore {{tmp_path}}/keystore.jks -storepass supersecret -keypass supersecret -validity 360 -keysize 2048  -dname 'cn=secure-eap-app-test.{{osm_default_subdomain}}, ou=Consult, o=Red Hat, l=Toronto, st=Ontario c=CA'
   delegate_to: localhost
   register: generate_self_sign_cer
 
 - name: Change jks file permission
-  file: path={{regression_result_path}}/keystore.jks mode=777
+  file: path={{tmp_path}}/keystore.jks mode=777
   delegate_to: localhost
 
-- name: Copy eap-service-account.yaml to regression_test folder
+- name: Copy eap-service-account.yaml to tmp_path folder
   copy: src="{{item.src}}" dest="{{item.dest}}" force="yes"
   with_items:
-      - { src: "eap-service-account.yaml" , dest: "{{regression_result_path}}/{{ role_path|basename }}_eap-service-account.yaml"}
-      - { src: "{{regression_result_path}}/keystore.jks", dest: "{{regression_result_path}}/keystore.jks" }
+      - { src: "eap-service-account.yaml" , dest: "{{tmp_path}}/{{ role_path|basename }}_eap-service-account.yaml"}
+      - { src: "{{tmp_path}}/keystore.jks", dest: "{{tmp_path}}/keystore.jks" }
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Create secret/sa
   command: "{{ item }}"
   args:  
-    chdir: "{{regression_result_path}}"
+    chdir: "{{tmp_path}}"
   with_items:
-     - "oc secrets new eap-app-secret {{regression_result_path}}/keystore.jks"
-     - "oc create -f {{regression_result_path}}/{{ role_path|basename }}_eap-service-account.yaml"
+     - "oc secrets new eap-app-secret {{tmp_path}}/keystore.jks"
+     - "oc create -f {{tmp_path}}/{{ role_path|basename }}_eap-service-account.yaml"
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Deploy eap application
@@ -69,7 +71,7 @@
   delegate_to: "{{ groups.masters.0 if remote_test_host == ' ' else remote_test_host}}"
 
 - name: Delete test result File
-  file: path={{regression_result_path}}/{{ item }} state=absent force=yes
+  file: path={{tmp_path}}/{{ item }} state=absent force=yes
   run_once: true
   with_items:
      - "{{ role_path|basename }}_eap_ssl.cnf"
