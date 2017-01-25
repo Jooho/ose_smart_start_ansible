@@ -1,4 +1,4 @@
-Regression Test - Sample Application - EAP SSL
+Sample Application - EAP SSL
 ============
 
 This role deploy eap ssl application which use self signed cert
