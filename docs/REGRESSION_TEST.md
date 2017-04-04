@@ -70,6 +70,8 @@ oc_login: {user_id: "OpenShiftAdmin", url: "https://master1.example.com:8443"}
 # ansible-playbook -i ../inventories/default/$YOUR_ANSIBLE_HOSTS_FILE   --extra-vars external_registry_password='$JENIE_PASSWORD'  --extra-vars oc_login_password='$OpenShiftAdmin_PASSWORD'  -M ../library/  -vvv
   ```
 
+---
+
 ## Result 
 
 All parameters are defined in group_vars
@@ -79,7 +81,7 @@ Report Path : `{{ regression_report_path if regression_report_path is defined el
 
 Report file : `{{ regression_report_path if regression_report_path is defined else regression_result_path }}/report.json`
 
-### Check if Regression Test Result:
+### Check Regression Test Result:
 #### Option1. Using Command:
  Execute following command. Then if you see nothing, it means regression test success. 
   ```
