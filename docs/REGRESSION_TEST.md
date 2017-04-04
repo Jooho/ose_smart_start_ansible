@@ -70,7 +70,7 @@ oc_login: {user_id: "OpenShiftAdmin", url: "https://master1.example.com:8443"}
 # ansible-playbook -i ../inventories/default/$YOUR_ANSIBLE_HOSTS_FILE   --extra-vars external_registry_password='$JENIE_PASSWORD'  --extra-vars oc_login_password='$OpenShiftAdmin_PASSWORD'  -M ../library/  -vvv
   ```
 
-## Result ##
+## Result 
 
 All parameters are defined in group_vars
 Result Path : `{{ regression_result_path }}`
@@ -79,12 +79,12 @@ Report Path : `{{ regression_report_path if regression_report_path is defined el
 
 Report file : `{{ regression_report_path if regression_report_path is defined else regression_result_path }}/report.json`
 
-###Check if Regression Test Result:###
-####Option1. Using Command:####
+### Check if Regression Test Result:
+#### Option1. Using Command:
  Execute following command. Then if you see nothing, it means regression test success. 
   ```
 egrep -v  "SUCCESS|started| 0%|Ready|INFO|WARN|open|Warnings" {{ regression_result_path }}/reg*result*
   ```
   
-####Option2. Using Application:####
+#### Option2. Using Application:
   [How to deploy Regression Web application?](https://github.com/Jooho/ose_smart_start_ansible/blob/master/docs/ORIGIN_ANSIBLE.md)
