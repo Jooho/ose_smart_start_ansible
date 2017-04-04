@@ -80,10 +80,11 @@ Report Path : `{{ regression_report_path if regression_report_path is defined el
 Report file : `{{ regression_report_path if regression_report_path is defined else regression_result_path }}/report.json`
 
 ###Check if Regression Test Result:###
-####Option1. Command:####
+####Option1. Using Command:####
  Execute following command. Then if you see nothing, it means regression test success. 
   ```
 egrep -v  "SUCCESS|started| 0%|Ready|INFO|WARN|open|Warnings" {{ regression_result_path }}/reg*result*
   ```
   
-####Option2. Application:####
+####Option2. Using Application:####
+  [How to deploy Regression Web application?](https://github.com/Jooho/ose_smart_start_ansible/blob/master/docs/ORIGIN_ANSIBLE.md)
