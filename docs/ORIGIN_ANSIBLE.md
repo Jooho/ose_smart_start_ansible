@@ -1,13 +1,13 @@
-#ORIGIN ANSIBLE#
+# ORIGIN ANSIBLE
 This is angularJS 2 application to display regression report at the moment.
 
-##How to Deploy Application:##
+## How to Deploy Application:
 
-**1.Using Docker** 
+** 1.Using Docker ** 
   ```
 docker run -d ljhiyh/origin-ansible 
   ```
-**2. Using Source**
+** 2. Using Source **
   ```
 $ sudo yum install nodejs npm   or   sudo yum install nodejs npm --enablerepo=epel
   
@@ -20,15 +20,15 @@ $ npm install
 $ npm start
   ```
   
-##Screenshot##
+## Screenshot
 
-**1. Open Browser (Go to http://IP:8080)**
+** 1. Open Browser (Go to http://IP:8080) **
 ![alt text][origin_ansible_first_page]
 
-**2. Click Data Menu and Put Report Data(report.json)**
+** 2. Click Data Menu and Put Report Data(report.json) **
 ![alt text][origin_ansible_data_page]
 
-**3. Click Report**
+** 3. Click Report **
 ![alt text][origin_ansible_report_page]
 
 [origin_ansible_first_page]: ./images/origin_ansible_first_page.JPG
