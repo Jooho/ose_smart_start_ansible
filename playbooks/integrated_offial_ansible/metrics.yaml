@@ -1,0 +1,29 @@
+---
+- name: Create hosted resources
+  hosts: masters[0]
+  vars:
+    openshift_deployment_type: "{{ deployment_type }}"
+    method_action: "{{method| default('install')}}"
+
+  pre_tasks:
+    - block:
+      - name: "Delete metrics objects (https://goo.gl/EV4XVd)"
+        command: "{{item}}"
+        with_items:
+          - oc project openshift-infra
+          - oc delete all,sa,templates,secrets,pvc --selector="metrics-infra"
+          - oc delete sa,secret metrics-deployer
+
+      when: (method_action == "remove") or (method_action == "redeploy")
+      ignore_errors: yes
+      tags: metrics, remove
+    - debug: msg="{{method}}"
+  roles:
+#  - role: lib_openshift
+#  - role: openshift_common
+#  - role: openshift_hosted_facts
+#  - role: openshift_examples 
+#  - role: openshift_facts 
+#  - role: openshift_master_facts 
+#  - role: openshift_hosted
+  -  {role: openshift_hosted_metrics, when: (method_action == "install") or (method_action == "redeploy"), tags: [ "metrics", "install"]} 

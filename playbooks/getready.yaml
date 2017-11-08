@@ -1,0 +1,43 @@
+---
+ - name: This playbook help set up to use this script fully.( clone official openshift-ansible repo, create symbolic link)
+   hosts: localhost
+   gather_facts: false
+
+   pre_tasks:
+   - name: set concurrent path
+     local_action: command pwd
+     register: pwd
+
+   - name: Get path of parent of ose_smart_start_ansible
+     shell: echo '{{ pwd.stdout.split("/")[0:-2]|join("/") }}'
+     register: root_dir_path
+
+   - name: set_facts - pwd_path
+     set_fact:
+        pwd_path: "{{pwd.stdout}}"
+        root_path: "{{root_dir_path.stdout}}"
+
+   tasks:
+     - block:
+       - name: Clone openshift-ansible repo on the same level of ose_smart_start_ansible
+         git: 
+           dest: "{{root_path}}/openshift-ansible"
+           repo: "https://github.com/openshift/openshift-ansible.git"
+           clone: yes
+           update: yes 
+           force: yes
+  
+       - name: Create symbolic link for official repo - openshift-ansible
+         file: src={{root_path}}/openshift-ansible/roles  dest={{root_path}}/ose_smart_start_ansible/playbooks/integrated_offial_ansible/roles state=link
+        # file: src=/usr/share/ansible/openshift-ansible/roles  dest={{root_path}}/ose_smart_start_ansible/playbooks/integrated_offial_ansible/roles state=link
+     
+     - block: 
+       - name: Get all file list from openshift-ansible/library folder
+         command: "ls {{root_path}}/openshift-ansible/library"
+         register: library_file_list
+  
+       - name: Create symbolic link for library files from official repo - openshift-ansible
+         file: src={{root_path}}/openshift-ansible/library/{{item}}  dest={{root_path}}/ose_smart_start_ansible/library/{{item}} state=link
+         with_items:
+           - "{{library_file_list.stdout_lines}}"
+

@@ -1,0 +1,31 @@
+---
+ - name: This playbook help set up to use this script fully.( clone official openshift-ansible repo, create symbolic link)
+   hosts: localhost
+   gather_facts: false
+
+   pre_tasks:
+   - name: set concurrent path
+     local_action: command pwd
+     register: pwd
+
+   - name: set_facts - pwd_path
+     set_fact:
+        pwd_path: "{{pwd.stdout}}"
+
+   tasks:
+   - name: Get path of parent of ose_smart_start_ansible
+     shell: echo '{{ pwd_path.split("/")[0:-2]|join("/") }}'
+     register: root_dir_path
+                                  
+
+   - command: "ls {{root_dir_path.stdout}}/openshift-ansible/library"
+     register: dir_out
+
+   - command: "echo {{item}}"
+     with_items:
+       - "{{dir_out.stdout_lines}}"
+
+   - file: src={{root_dir_path.stdout}}/openshift-ansible/library/{{item}}  dest={{root_dir_path.stdout}}/ose_smart_start_ansible/library/{{item}} state=link
+     with_items: 
+       - "{{dir_out.stdout_lines}}"
+   
