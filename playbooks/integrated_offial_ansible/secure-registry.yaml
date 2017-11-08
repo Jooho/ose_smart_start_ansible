@@ -1,0 +1,10 @@
+---
+- name: Create hosted resources
+  hosts: masters[0]
+  vars:
+    openshift_deployment_type: "{{ deployment_type }}"
+  pre_tasks:
+    - include_role:
+        name: openshift_hosted
+        tasks_from: registry
+   
