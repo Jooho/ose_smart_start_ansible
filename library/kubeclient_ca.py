@@ -1,0 +1,1 @@
+/root/nfs/jooho/openshift-ansible/library/kubeclient_ca.py
